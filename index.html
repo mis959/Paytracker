@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayTrack — Tarun Paint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F8FAFD; --white: #FFFFFF;
+            --border: rgba(228,233,240,0.8); --border-dark: #CDD5E0; --navy: #0B1120;
+            --blue: #3772FF; --blue-hover: #1D4ED8; --blue-light: #F0F5FF;
+            --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8;
+            --green: #10B981; --green-bg: #ECFDF5; --yellow: #F59E0B; --yellow-bg: #FFFBEB;
+            --orange: #F97316; --orange-bg: #FFF7ED; --red: #EF4444; --red-bg: #FEF2F2;
+            --purple: #8B5CF6; --purple-bg: #F5F3FF;
+            --radius-sm: 8px; --radius: 12px; --radius-lg: 18px; --radius-xl: 30px;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            --shadow-premium: 0 0 0 1px rgba(0,0,0,0.05), 0 10px 30px -5px rgba(0,0,0,0.1);
+            --sidebar-w: 260px; --header-h: 70px;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 14px; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+        .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: var(--sidebar-w); background: var(--navy); display: flex; flex-direction: column; z-index: 200; overflow: hidden; border-right: 1px solid rgba(255,255,255,.05); }
+        .sidebar::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; }
+        .brand { padding: 20px 20px 18px; border-bottom: 1px solid rgba(255,255,255,.08); flex-shrink: 0; }
+        .brand-row { display: flex; align-items: center; gap: 11px; }
+        .brand-mark { width: 38px; height: 38px; background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; box-shadow: 0 4px 12px rgba(37,99,235,.4); }
+        .brand-text .name { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -.2px; }
+        .brand-text .tagline { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 1px; font-weight: 500; letter-spacing: 0.5px; }
+        .date-chip { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1); border-radius: 20px; padding: 4px 10px; font-size: 11px; color: rgba(255,255,255,.55); }
+        nav { flex: 1; padding: 14px 12px; overflow-y: auto; }
+        nav::-webkit-scrollbar { width: 0; }
+        .nav-group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,.28); padding: 12px 10px 5px; }
+        .nav-btn { display: flex; align-items: center; gap: 9px; width: 100%; padding: 9px 10px; border: none; background: none; color: rgba(255,255,255,.55); border-radius: var(--radius-sm); font-family: inherit; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .18s; text-align: left; margin-bottom: 1px; position: relative; }
+        .nav-btn:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+        .nav-btn.active { background: rgba(37,99,235,.35); color: #fff; font-weight: 600; }
+        .nav-btn.active::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 3px; background: #60A5FA; border-radius: 0 3px 3px 0; }
+        .nav-icon { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
+        .nav-badge { margin-left: auto; background: #DC2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
+        .sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); font-size: 11px; color: rgba(255,255,255,.28); text-align: center; flex-shrink: 0; }
+
+        .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
+        .topbar { height: var(--header-h); background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 16px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
+        .topbar-title { font-size: 16px; font-weight: 700; color: var(--text-primary); letter-spacing: -.2px; }
+        .topbar-sep { width: 1px; height: 18px; background: var(--border); }
+        .topbar-sub { font-size: 12.5px; color: var(--text-muted); }
+        .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+        .search-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 7px 13px; transition: border-color .2s; min-width: 220px; }
+        .search-wrap:focus-within { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+        .search-wrap input { border: none; background: none; outline: none; font-family: inherit; font-size: 13px; color: var(--text-primary); width: 100%; }
+        .search-wrap input::placeholder { color: var(--text-muted); }
+
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .18s; white-space: nowrap; line-height: 1; }
+        .btn-primary { background: var(--blue); color: #fff; box-shadow: 0 1px 3px rgba(37,99,235,.3); }
+        .btn-primary:hover:not(:disabled) { background: #1D4ED8; box-shadow: 0 4px 12px rgba(37,99,235,.35); transform: translateY(-1px); }
+        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        .btn-outline { background: var(--white); color: var(--text-secondary); border: 1.5px solid var(--border); }
+        .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+        .btn-ghost { background: var(--bg); color: var(--text-secondary); border: 1.5px solid var(--border); }
+        .btn-ghost:hover { background: var(--border); }
+        .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+        @keyframes btn-spin { to { transform: rotate(360deg); } }
+        .btn-spinner { display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: btn-spin 0.6s linear infinite; flex-shrink: 0; }
+
+        /* In-place update animation for call cards */
+        @keyframes cardFlash { 0%{background:rgba(16,185,129,0.15)} 100%{background:transparent} }
+        .call-card.flash-update { animation: cardFlash 1.2s ease-out forwards; }
+
+        .content { flex: 1; padding: 22px 24px; max-width: 1400px; width: 100%; }
+        .page { display: none; animation: fadeIn .22s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .progress-bar-wrap { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 9999; pointer-events: none; opacity: 0; transition: opacity .2s; }
+        .progress-bar-wrap.show { opacity: 1; }
+        .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--blue), #60A5FA); transition: width .4s cubic-bezier(.4,0,.2,1); }
+
+        .sk { background: linear-gradient(90deg, #F1F5F9 25%, #E2E8F0 50%, #F1F5F9 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .sk-text { height: 12px; width: 100%; margin: 8px 0; }
+        .sk-row { height: 44px; width: 100%; margin: 4px 0; border-radius: 6px; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+        .stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; position: relative; overflow: hidden; box-shadow: var(--shadow-sm); transition: box-shadow .2s, transform .2s; }
+        .stat-card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+        .stat-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+        .stat-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+        .stat-label { font-size: 11.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .6px; }
+        .stat-icon-wrap { width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .stat-value { font-size: 24px; font-weight: 800; color: var(--text-primary); letter-spacing: -.5px; line-height: 1; font-family: 'JetBrains Mono', monospace; }
+        .stat-footer { display: flex; align-items: center; gap: 5px; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); }
+
+        .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+        .card-head { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); letter-spacing: -.1px; }
+        .card-subtitle { font-size: 12px; color: var(--text-muted); margin-left: auto; }
+        .card-body { padding: 18px 20px; }
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .section-gap { margin-bottom: 16px; }
+
+        .tbl-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: #F8FAFC; border-bottom: 1px solid var(--border); }
+        thead th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text-muted); white-space: nowrap; }
+        tbody td { padding: 12px 14px; font-size: 13px; border-bottom: 1px solid var(--border); color: var(--text-secondary); vertical-align: middle; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background .12s; }
+        tbody tr:hover td { background: #F8FAFD; }
+        .td-primary { font-weight: 600; color: var(--text-primary) !important; }
+        .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--bg); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border); }
+
+        .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; }
+        .badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+        .badge-critical { background: var(--red-bg); color: var(--red); } .badge-critical::before { background: var(--red); }
+        .badge-high { background: var(--orange-bg); color: var(--orange); } .badge-high::before { background: var(--orange); }
+        .badge-medium { background: var(--yellow-bg); color: var(--yellow); } .badge-medium::before { background: var(--yellow); }
+        .badge-normal { background: var(--green-bg); color: var(--green); } .badge-normal::before { background: var(--green); }
+        .badge-reminder { background: var(--blue-light); color: var(--blue); } .badge-reminder::before { background: var(--blue); }
+        .badge-paid { background: var(--green-bg); color: var(--green); } .badge-paid::before { background: var(--green); }
+        .badge-active { background: var(--blue-light); color: var(--blue); } .badge-active::before { background: var(--blue); }
+
+        .aging-item { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+        .aging-item:last-child { border-bottom: none; }
+        .aging-lbl { width: 92px; font-size: 12px; color: var(--text-secondary); font-weight: 500; flex-shrink: 0; }
+        .aging-bar-track { flex: 1; height: 7px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+        .aging-bar-fill { height: 100%; border-radius: 4px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+        .aging-amt { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-primary); font-weight: 600; width: 90px; text-align: right; flex-shrink: 0; }
+
+        .call-list { display: flex; flex-direction: column; gap: 10px; }
+        .call-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-sm); transition: all .18s; }
+        .call-card:hover { border-color: var(--blue); box-shadow: var(--shadow); }
+        .call-card.priority-critical { border-left: 4px solid var(--red); }
+        .call-card.priority-high { border-left: 4px solid var(--orange); }
+        .call-card.priority-medium { border-left: 4px solid var(--yellow); }
+        .call-card.priority-normal { border-left: 4px solid var(--green); }
+        .call-card.priority-reminder { border-left: 4px solid var(--blue); }
+        .call-avatar { width: 42px; height: 42px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .call-info { flex: 1; min-width: 0; }
+        .call-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+        /* Call count badge on card - shows how many times called today */
+        .call-count-badge { display: inline-flex; align-items: center; gap: 3px; background: var(--blue-light); color: var(--blue); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
+
+        .filter-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+        .ftab { padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--white); color: var(--text-muted); transition: all .15s; }
+        .ftab:hover { border-color: var(--blue); color: var(--blue); }
+        .ftab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+        .pagination { display: flex; align-items: center; gap: 6px; padding: 14px 20px; border-top: 1px solid var(--border); justify-content: center; flex-wrap: wrap; }
+        .pg-btn { padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--white); color: var(--text-secondary); transition: all .15px; }
+        .pg-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
+        .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .pg-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+        .pg-info { font-size: 12px; color: var(--text-muted); padding: 0 8px; }
+
+        .modal-bg { position: fixed; inset: 0; background: rgba(15,28,46,.5); backdrop-filter: blur(4px); z-index: 500; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .22s; }
+        .modal-bg.open { opacity: 1; pointer-events: all; }
+        .modal { background: var(--white); border-radius: var(--radius-xl); width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); transform: scale(.96) translateY(8px); transition: transform .22s cubic-bezier(.4,0,.2,1); }
+        .modal-bg.open .modal { transform: scale(1) translateY(0); }
+        .modal-hd { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .modal-hd-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 17px; }
+        .modal-title { font-size: 16px; font-weight: 700; color: var(--text-primary); letter-spacing: -.2px; }
+        .modal-close { margin-left: auto; background: var(--bg); border: 1px solid var(--border); width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--text-muted); transition: all .15s; }
+        .modal-close:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+        .modal-body { padding: 20px 24px; }
+        .modal-ft { padding: 14px 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; background: #FAFBFC; }
+
+        .modal-wide { width: 820px; max-width: 96vw; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-grid .full { grid-column: 1 / -1; }
+        .field { display: flex; flex-direction: column; gap: 5px; }
+        .field label { font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; }
+        .field input, .field select, .field textarea { font-family: inherit; font-size: 13.5px; color: var(--text-primary); background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; outline: none; transition: border-color .15s, box-shadow .15s; }
+        .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+        .field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+        .invoice-info-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 16px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .invoice-info-box .name { font-weight: 700; font-size: 14px; color: var(--text-primary); }
+        .invoice-info-box .meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .invoice-info-box .balance { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+
+        .toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 16px; display: flex; align-items: center; gap: 10px; min-width: 260px; max-width: 360px; box-shadow: var(--shadow-lg); font-size: 13px; color: var(--text-primary); animation: toastIn .3s cubic-bezier(.4,0,.2,1); pointer-events: all; }
+        .toast-icon { font-size: 16px; flex-shrink: 0; }
+        .toast.success { border-left: 3px solid var(--green); }
+        .toast.error { border-left: 3px solid var(--red); }
+        .toast.info { border-left: 3px solid var(--blue); }
+        @keyframes toastIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .cache-badge { font-size: 10px; background: var(--green-bg); color: var(--green); padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 56px 20px; color: var(--text-muted); gap: 10px; }
+        .empty-state .icon { font-size: 38px; opacity: .5; }
+        .empty-state p { font-size: 14px; font-weight: 500; }
+
+        .summary-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .s-chip { display: flex; align-items: center; gap: 7px; padding: 6px 13px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; box-shadow: var(--shadow-sm); }
+        .s-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .s-chip .lbl { color: var(--text-muted); }
+        .s-chip .val { font-weight: 700; color: var(--text-primary); margin-left: 2px; }
+
+        .analysis-controls { display: flex; justify-content: center; margin-bottom: 24px; padding: 10px 0; background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; margin-top: -24px; margin-left: -24px; margin-right: -24px; }
+        .toggle-group { display: flex; background: var(--bg); padding: 4px; border-radius: var(--radius-lg); gap: 4px; }
+        .tbtn { border: none; background: transparent; padding: 8px 24px; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; border-radius: var(--radius); transition: all 0.2s; }
+        .tbtn:hover { color: var(--text-primary); }
+        .tbtn.active { background: var(--white); color: var(--blue); box-shadow: var(--shadow-sm); }
+        .analysis-body { padding-top: 20px; }
+        .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .analysis-table-card { background: var(--white); border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow); overflow: hidden; }
+
+        .day-bar-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .day-bar-row:last-child { border-bottom: none; }
+        .day-lbl { width: 88px; font-size: 12px; color: var(--text-secondary); font-weight: 600; flex-shrink: 0; }
+        .day-track { flex: 1; height: 20px; background: var(--bg); border-radius: 4px; overflow: hidden; position: relative; }
+        .day-done { height: 100%; background: var(--green); border-radius: 4px; transition: width .6s ease; }
+        .day-left { position: absolute; top: 0; height: 100%; background: #FED7AA; border-radius: 0 4px 4px 0; transition: all .6s ease; }
+        .day-nums { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); white-space: nowrap; width: 80px; text-align: right; flex-shrink: 0; }
+        .day-amt { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--green); white-space: nowrap; width: 80px; text-align: right; flex-shrink: 0; }
+
+        .timeline-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .timeline-item:last-child { border-bottom: none; }
+        .timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 4px; }
+        .timeline-dot.paid { background: var(--green); }
+        .timeline-meta { flex: 1; min-width: 0; }
+
+        .config-banner { background: #FFF8E1; border: 1.5px solid #F59E0B; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .config-banner.hidden { display: none; }
+        .config-banner p { font-size: 13px; color: #92400E; flex: 1; min-width: 200px; }
+        .config-banner input { font-family: 'JetBrains Mono', monospace; font-size: 12px; flex: 2; min-width: 260px; padding: 8px 10px; border: 1.5px solid #F59E0B; border-radius: var(--radius-sm); outline: none; background: #fff; }
+
+        .loader-wrap { position: fixed; inset: 0; background: rgba(244,246,250,.75); backdrop-filter: blur(2px); z-index: 9998; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 14px; }
+        .loader-wrap.show { display: flex; }
+        .spinner { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .75s linear infinite; }
+        .loader-txt { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar-wrap" id="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
+
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-row">
+            <div class="brand-mark">💰</div>
+            <div class="brand-text">
+                <div class="name">PayTrack</div>
+                <div class="tagline">Tarun Paint Co.</div>
+            </div>
+        </div>
+        <div class="date-chip">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5z"/></svg>
+            <span id="today-date">Loading...</span>
+        </div>
+    </div>
+    <nav>
+        <div class="nav-group-label">Overview</div>
+        <button class="nav-btn active" data-page="dashboard" onclick="nav('dashboard')"><span class="nav-icon">⊞</span> Dashboard</button>
+        <button class="nav-btn" data-page="today" onclick="nav('today')"><span class="nav-icon">📞</span> Today's Calling<span class="nav-badge" id="badge-today">0</span></button>
+        <div class="nav-group-label">Payments</div>
+        <button class="nav-btn" data-page="active" onclick="nav('active')"><span class="nav-icon">⏳</span> Active Payments</button>
+        <button class="nav-btn" data-page="history" onclick="nav('history')"><span class="nav-icon">📋</span> Call History</button>
+        <button class="nav-btn" data-page="analysis" onclick="nav('analysis')"><span class="nav-icon">📊</span> Analysis</button>
+        <button class="nav-btn" data-page="archived" onclick="nav('archived')"><span class="nav-icon">📁</span> Archives</button>
+        <div class="nav-group-label">Actions</div>
+        <button class="nav-btn" onclick="openModal('modal-add')"><span class="nav-icon">＋</span> Add Invoice</button>
+        <button class="nav-btn" onclick="hardRefresh()"><span class="nav-icon">🔄</span> Force Refresh</button>
+    </nav>
+    <div class="sidebar-footer">PayTrack v12.0 &nbsp;·&nbsp; © 2026</div>
+</aside>
+
+<div class="main">
+    <header class="topbar">
+        <span class="topbar-title" id="page-title">Dashboard</span>
+        <div class="topbar-sep"></div>
+        <span class="topbar-sub" id="page-sub">Payment overview & analytics</span>
+        <div class="topbar-right">
+            <div class="search-wrap">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" placeholder="Search customer, invoice..." id="g-search" oninput="globalSearch(this.value)">
+            </div>
+            <button class="btn btn-primary" onclick="openModal('modal-add')">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+                Add Invoice
+            </button>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="config-banner" id="config-banner">
+            <span style="font-size:20px">⚙️</span>
+            <p><strong>Setup Required:</strong> Apps Script deploy karo (Execute as: Me, Access: Anyone), phir URL paste karo.</p>
+            <input type="text" id="webapp-url-input" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec">
+            <button class="btn btn-primary btn-sm" onclick="saveWebAppUrl()">Save & Connect</button>
+        </div>
+
+        <!-- SEARCH RESULTS -->
+        <div class="page" id="page-search">
+            <div class="card">
+                <div class="card-head"><span class="card-title">Search Results</span><span class="card-subtitle" id="search-count"></span></div>
+                <div class="tbl-wrap"><table>
+                    <thead><tr><th>Customer</th><th>Phone No.</th><th>Invoice</th><th>Dispatch</th><th>Balance</th><th>Due Date</th><th>Due Days</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="tbl-search"></tbody>
+                </table></div>
+            </div>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="page active" id="page-dashboard">
+            <div class="card section-gap">
+                <div class="card-body" style="padding:10px 20px;background:var(--navy);color:#fff;border-radius:var(--radius-lg)">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <div>
+                            <span style="font-size:12px;opacity:0.8">TOTAL OUTSTANDING</span>
+                            <div id="s-total" style="font-size:32px;font-weight:800;font-family:'JetBrains Mono'">—</div>
+                        </div>
+                        <div style="text-align:right">
+                            <span style="font-size:12px;opacity:0.8;display:block">LAST UPDATED</span>
+                            <span style="font-size:13px;font-weight:600" id="last-update-time">—</span>
+                            <span id="cache-indicator"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="stats-row">
+                <div class="stat-card" style="border:none;box-shadow:var(--shadow-premium)"><div class="stat-accent" style="background:var(--purple)"></div><div class="stat-top"><span class="stat-label">Active Parties</span><div class="stat-icon-wrap" style="background:var(--purple-bg)">👤</div></div><div class="stat-value" id="s-parties">—</div><div class="stat-footer" id="s-records">—</div></div>
+                <div class="stat-card" style="border:none;box-shadow:var(--shadow-premium)"><div class="stat-accent" style="background:var(--red)"></div><div class="stat-top"><span class="stat-label">Critical Overdue</span><div class="stat-icon-wrap" style="background:var(--red-bg)">🚨</div></div><div class="stat-value" id="s-overdue" style="color:var(--red)">—</div><div class="stat-footer">Past due date</div></div>
+                <div class="stat-card" style="border:none;box-shadow:var(--shadow-premium)"><div class="stat-accent" style="background:var(--yellow)"></div><div class="stat-top"><span class="stat-label">Due Soon</span><div class="stat-icon-wrap" style="background:var(--yellow-bg)">⏰</div></div><div class="stat-value" id="s-soon" style="color:var(--yellow)">—</div><div class="stat-footer">Due within 7 days</div></div>
+                <div class="stat-card" style="border:none;box-shadow:var(--shadow-premium)"><div class="stat-accent" style="background:linear-gradient(90deg,var(--blue),#60A5FA)"></div><div class="stat-top"><span class="stat-label">Action Today</span><div class="stat-icon-wrap" style="background:var(--blue-light)">📞</div></div><div class="stat-value" id="s-calls" style="color:var(--blue)">—</div><div class="stat-footer">Ready to call</div></div>
+            </div>
+            <div class="grid-2">
+                <div class="card" style="border:none;box-shadow:var(--shadow-premium)">
+                    <div class="card-head" style="background:linear-gradient(to right,#fff,#F8FAFD)">
+                        <div class="stat-icon-wrap" style="background:var(--blue-light);font-size:14px">📉</div>
+                        <span class="card-title">Aging Analysis</span>
+                        <span class="card-subtitle">Outstanding by period</span>
+                    </div>
+                    <div class="card-body" id="aging-container">
+                        <div id="aging-sk">${Array(6).fill('<div class="sk sk-text"></div>').join('')}</div>
+                    </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:14px">
+                    <div class="card">
+                        <div class="card-head"><span class="card-title">Quick Actions</span></div>
+                        <div class="card-body" style="display:flex;flex-direction:column;gap:8px;padding:14px 16px">
+                            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="nav('today')">📞 Start Today's Calling</button>
+                            <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="openModal('modal-add')">＋ Add New Invoice</button>
+                            <button class="btn btn-outline" style="width:100%;justify-content:center" onclick="nav('active')">⏳ View All Pending</button>
+                            <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="loadDashboard(true)">↺ Refresh Dashboard</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-head"><span class="card-title">🚨 Critical Overdue Accounts</span><button class="btn btn-outline btn-sm" onclick="nav('active')" style="margin-left:auto">View All →</button></div>
+                <div class="tbl-wrap"><table>
+                    <thead><tr><th>#</th><th>Customer</th><th>Invoice No.</th><th>Dispatch Date</th><th>Balance</th><th>Due Days</th><th>Priority</th><th>Action</th></tr></thead>
+                    <tbody id="tbl-overdue"></tbody>
+                </table></div>
+            </div>
+        </div>
+
+        <!-- TODAY'S CALLING -->
+        <div class="page" id="page-today">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+                <button class="ftab active" id="tab-today-calling" onclick="setTodayFilter('today',this)">📞 Today Calling <span id="today-count-badge" style="background:var(--blue);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px">0</span></button>
+                <button class="ftab" id="tab-pending-calling" onclick="setTodayFilter('pending',this)">⏳ Pending <span id="pending-count-badge" style="background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;margin-left:4px">0</span></button>
+                <div class="summary-chips" id="today-chips"></div>
+            </div>
+            <div class="call-list" id="call-list-container"></div>
+        </div>
+
+        <!-- ACTIVE PAYMENTS -->
+        <div class="page" id="page-active">
+            <div class="filter-tabs">
+                <button class="ftab active" onclick="filterActive('all',this)">All</button>
+                <button class="ftab" onclick="filterActive('Active',this)">🔵 Active</button>
+                <button class="ftab" onclick="filterActive('Critical',this)">🔴 Critical</button>
+                <button class="ftab" onclick="filterActive('High',this)">🟠 High</button>
+                <button class="ftab" onclick="filterActive('Medium',this)">🟡 Medium</button>
+                <button class="ftab" onclick="filterActive('Normal',this)">🟢 Normal</button>
+                <button class="ftab" onclick="filterActive('Reminder',this)">🔵 Reminder</button>
+                <button class="ftab" onclick="filterActive('Paid',this)">✅ Paid</button>
+                <button class="btn btn-sm btn-ghost" onclick="downloadActiveExcel()" style="margin-left:auto;color:var(--green);border-color:var(--green-bg)">📥 Download</button>
+            </div>
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">Active Payments</span>
+                    <span class="card-subtitle" id="active-count"></span>
+                    <button class="btn btn-ghost btn-sm" onclick="loadActive(true)" style="margin-left:8px">↺</button>
+                </div>
+                <div class="tbl-wrap"><table>
+                    <thead><tr><th>#</th><th>Customer</th><th>Phone No.</th><th>Invoice</th><th>Dealer Type</th><th>Sales Person</th><th>Invoice Amt</th><th>Balance</th><th>Dispatch</th><th>Due Date</th><th>Due Days</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody id="tbl-active"></tbody>
+                </table></div>
+                <div class="pagination" id="active-pagination"></div>
+            </div>
+        </div>
+
+        <!-- CALL HISTORY -->
+        <div class="page" id="page-history">
+            <div class="card">
+                <div class="card-head"><span class="card-title">Call History</span><button class="btn btn-ghost btn-sm" onclick="loadHistory(true)" style="margin-left:auto">↺ Refresh</button></div>
+                <div class="tbl-wrap"><table>
+                    <thead><tr><th>#</th><th>Date & Time</th><th>Customer</th><th>Invoice</th><th>Amount Recd.</th><th>Scheduled For</th><th>Next Follow-up</th><th>Remarks</th><th>ADJ.</th><th>ADJ. Remarks</th></tr></thead>
+                    <tbody id="tbl-history"></tbody>
+                </table></div>
+                <div class="pagination" id="history-pagination"></div>
+            </div>
+        </div>
+
+        <!-- ANALYSIS -->
+        <div class="page" id="page-analysis">
+            <div class="analysis-controls">
+                <div class="toggle-group">
+                    <button class="tbtn active" onclick="setAnalysisView('user',this)">User Analysis</button>
+                    <button class="tbtn" onclick="setAnalysisView('dealer',this)">Dealer Analysis</button>
+                </div>
+            </div>
+            <div id="analysis-content" class="analysis-body">
+                <div class="empty-state"><span class="icon">📊</span><p>Select an analysis view</p></div>
+            </div>
+        </div>
+
+        <!-- ARCHIVED -->
+        <div class="page" id="page-archived">
+            <div class="card">
+                <div class="card-head">
+                    <span class="card-title">Archived Payments</span>
+                    <span class="card-subtitle" id="archive-count">Historical paid records</span>
+                    <button class="btn btn-primary btn-sm" onclick="runArchiveNow()" style="margin-left:auto;background:var(--green)">📦 Archive Paid Now</button>
+                </div>
+                <div class="tbl-wrap"><table>
+                    <thead><tr><th>#</th><th>Customer</th><th>Invoice</th><th>Dealer Type</th><th>Sales Person</th><th>Amount</th><th>Due Date</th><th>Priority</th><th>Archived On</th></tr></thead>
+                    <tbody id="tbl-archived"></tbody>
+                </table></div>
+                <div class="pagination" id="archived-pagination"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD INVOICE MODAL -->
+<div class="modal-bg" id="modal-add">
+    <div class="modal">
+        <div class="modal-hd"><div class="modal-hd-icon" style="background:var(--blue-light)">📄</div><span class="modal-title">Add New Invoice</span><button class="modal-close" onclick="closeModal('modal-add')">✕</button></div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="field"><label>Sales Person *</label><input id="f-sp" type="text" placeholder="Name"></div>
+                <div class="field"><label>Dispatch Date *</label><input id="f-dd" type="date"></div>
+                <div class="field"><label>Dealer Code *</label><input id="f-dc" type="text" placeholder="e.g. TPPLD1M"></div>
+                <div class="field"><label>Customer Name *</label><input id="f-cn" type="text" placeholder="M/s. Customer"></div>
+                <div class="field"><label>Location *</label><input id="f-loc" type="text" placeholder="City / Town"></div>
+                <div class="field"><label>Dealer Type</label><select id="f-dt"><option value="">-- Select --</option><option>Dealer</option><option>Sub-Dealer</option><option>Retailer</option><option>Direct</option></select></div>
+                <div class="field"><label>Order No.</label><input id="f-ord" type="text" placeholder="Order number"></div>
+                <div class="field"><label>Dealer Phone No.</label><input id="f-ph" type="text" placeholder="Phone number"></div>
+                <div class="field"><label>Invoice No. *</label><input id="f-inv" type="text" placeholder="Invoice number"></div>
+                <div class="field"><label>Invoice Amount (₹) *</label><input id="f-amt" type="number" placeholder="0.00"></div>
+                <div class="field full"><label>Credit Days *</label><input id="f-crd" type="number" placeholder="30" value="30"></div>
+            </div>
+        </div>
+        <div class="modal-ft"><button class="btn btn-ghost" onclick="closeModal('modal-add')">Cancel</button><button class="btn btn-primary" onclick="submitAddInvoice()">Add Invoice</button></div>
+    </div>
+</div>
+
+<!-- LOG CALL MODAL -->
+<div class="modal-bg" id="modal-call">
+    <div class="modal">
+        <div class="modal-hd"><div class="modal-hd-icon" style="background:var(--green-bg)">📞</div><span class="modal-title">Log Call</span><button class="modal-close" onclick="closeModal('modal-call')">✕</button></div>
+        <div class="modal-body">
+            <div class="invoice-info-box">
+                <div><div class="name" id="c-name">—</div><div class="meta">Invoice: <strong id="c-inv">—</strong> &nbsp;·&nbsp; <span id="c-loc">—</span></div></div>
+                <div class="balance" id="c-bal">₹0</div>
+            </div>
+            <input type="hidden" id="c-dc">
+            <div class="form-grid">
+                <div class="field"><label>Amount Received (₹)</label><input id="c-amt" type="number" placeholder="0 if no payment today"></div>
+                <div class="field"><label>Follow-up Date</label><input id="c-fup" type="date" required></div>
+                <div class="field full"><label>Customer Response / Remarks *</label><textarea id="c-rmk" placeholder="What did customer say?"></textarea></div>
+                <div class="field"><label>Adjustment (₹)</label><input id="c-adj" type="number" placeholder="0"></div>
+                <div class="field"><label>Adjustment Reason</label><select id="c-adjr"><option value="">-- Select --</option><option>Token</option><option>Scheme</option><option>CD</option><option>Material Return</option><option>Freight</option></select></div>
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button class="btn btn-ghost" onclick="closeModal('modal-call')">Cancel</button>
+            <button class="btn btn-primary" id="btn-save-call" onclick="submitLogCall()">Save Call Log</button>
+        </div>
+    </div>
+</div>
+
+<!-- DEALER HISTORY MODAL -->
+<div class="modal-bg" id="modal-dealer">
+    <div class="modal modal-wide">
+        <div class="modal-hd">
+            <div class="modal-hd-icon" style="background:var(--purple-bg)">🏪</div>
+            <div>
+                <div class="modal-title" id="dealer-modal-name">Dealer History</div>
+                <div style="font-size:12px;color:var(--text-muted)" id="dealer-modal-meta"></div>
+            </div>
+            <button class="modal-close" onclick="closeModal('modal-dealer')">✕</button>
+        </div>
+        <div class="modal-body" style="padding:16px 20px">
+            <div id="dealer-modal-stats" style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap"></div>
+            <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">Call History</div>
+            <div id="dealer-modal-timeline" style="max-height:420px;overflow-y:auto"></div>
+        </div>
+    </div>
+</div>
+
+<div class="loader-wrap" id="loader"><div class="spinner"></div><div class="loader-txt" id="loader-msg">Loading...</div></div>
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// PAYTRACK v12.0
+//
+// FIX 1 — Scroll Preservation:
+//   submitLogCall() → in-place card update (optimistic UI)
+//   No full page reload → scroll position preserved
+//   AppData.today cache updated locally without re-render
+//
+// FIX 2 — Today/Pending Logic (CORRECT):
+//   TODAY tab  = followUp date == TODAY  OR  due date == TODAY (od === 0)
+//   PENDING tab = followUp date < TODAY  OR  (od > 0 AND no followup / followup < today)
+//   Rule: agar aaj ki date hai follow-up mein → always TODAY tab
+//   Rule: agar kal ya baad ki → future → skip (not in either tab)
+//   Rule: multiple calls same day → fully supported
+//
+// FIX 3 — After logCall, pending record with today follow-up → moves to TODAY tab
+// ══════════════════════════════════════════════════════
+
+let WEBAPP_URL = localStorage.getItem('paytrack_webapp_url') || '';
+
+const AppData = {
+    dashboard: null,
+    today: null,       // raw array from server (all eligible records)
+    active: null,
+    activeAll: null,
+    history: null,
+    analysis: null,
+    archived: null,
+};
+
+const AppState = {
+    currentPage: 'dashboard',
+    activeFilter: 'all',
+    activePage: 1,
+    historyPage: 1,
+    archivedPage: 1,
+    todayFilter: 'today',
+    searchTimer: null,
+    // Tracks per-invoice call count for current session (for badge display)
+    sessionCallCounts: {},
+    // Stores last remarks per invoice for optimistic update
+    lastCallMap: {},
+};
+
+const PAGE_SIZE = { active: 100, history: 50, archived: 100 };
+
+// ── Today's date string (YYYY-MM-DD, local) ───────────────────────
+const _todayStr = (() => {
+    const d = new Date();
+    return d.getFullYear() + '-' +
+           String(d.getMonth()+1).padStart(2,'0') + '-' +
+           String(d.getDate()).padStart(2,'0');
+})();
+
+// ── Config ─────────────────────────────────────────────────────
+function saveWebAppUrl() {
+    const val = document.getElementById('webapp-url-input').value.trim();
+    if (!val || !val.startsWith('https://')) { toast('Valid https:// URL daalo', 'error'); return; }
+    WEBAPP_URL = val;
+    localStorage.setItem('paytrack_webapp_url', val);
+    document.getElementById('config-banner').classList.add('hidden');
+    toast('URL saved! Dashboard load ho raha hai...', 'success');
+    loadDashboard(true);
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+    document.getElementById('today-date').textContent =
+        now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+    document.getElementById('f-dd').value = now.toISOString().split('T')[0];
+    document.getElementById('c-fup').value = now.toISOString().split('T')[0];
+
+    if (WEBAPP_URL) {
+        document.getElementById('config-banner').classList.add('hidden');
+        loadDashboard();
+    } else {
+        document.getElementById('webapp-url-input').focus();
+    }
+});
+
+// ══════════════════════════════════════════════════════
+// PROGRESS BAR
+// ══════════════════════════════════════════════════════
+let _activeReqs = 0, _pct = 0, _pTimer = null;
+
+function startProgress() {
+    _activeReqs++;
+    if (_activeReqs === 1) {
+        _pct = 0; setProgress(15);
+        clearInterval(_pTimer);
+        _pTimer = setInterval(() => { if (_pct < 85) setProgress(_pct + (85 - _pct) * 0.1); }, 300);
+        document.getElementById('progress-bar').classList.add('show');
+    }
+}
+function endProgress() {
+    _activeReqs = Math.max(0, _activeReqs - 1);
+    if (_activeReqs === 0) {
+        clearInterval(_pTimer); setProgress(100);
+        setTimeout(() => { document.getElementById('progress-bar').classList.remove('show'); setProgress(0); }, 400);
+    }
+}
+function setProgress(p) { _pct = p; document.getElementById('progress-fill').style.width = p + '%'; }
+
+// ══════════════════════════════════════════════════════
+// API
+// ══════════════════════════════════════════════════════
+async function api(action, payload, query, silent) {
+    if (!WEBAPP_URL) { toast('Pehle Web App URL set karo', 'error'); return null; }
+    if (!silent) startProgress();
+    const body = { action };
+    if (payload !== undefined) body.payload = payload;
+    if (query !== undefined) body.query = query;
+    try {
+        const res = await fetch(WEBAPP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(body),
+            redirect: 'follow'
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        if (!text || !text.trim()) throw new Error('Empty response. Script deploy check karo.');
+        const data = JSON.parse(text.replace(/^\uFEFF/, '').trim());
+        if (!data.success) { toast(data.message || 'Server error', 'error'); return null; }
+        return data;
+    } catch (err) {
+        let msg = err.message;
+        if (msg.includes('Failed to fetch')) msg = 'CORS/network error. Deploy settings check karo.';
+        toast('Error: ' + msg, 'error');
+        return null;
+    } finally {
+        if (!silent) endProgress();
+    }
+}
+
+// ══════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════
+const PAGE_META = {
+    dashboard: ['Dashboard', 'Payment overview & analytics'],
+    today:     ["Today's Calling", 'Contacts to call today'],
+    active:    ['Active Payments', 'All pending invoices'],
+    history:   ['Call History', 'Complete call log records'],
+    analysis:  ['Data Analysis', 'Performance by User or Dealer'],
+    search:    ['Search Results', 'Matching payment records'],
+    archived:  ['Archived Payments', 'Historical paid records'],
+};
+
+function nav(page, force) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn[data-page]').forEach(b => b.classList.remove('active'));
+    const pg = document.getElementById('page-' + page);
+    if (pg) pg.classList.add('active');
+    const navBtn = document.querySelector(`.nav-btn[data-page="${page}"]`);
+    if (navBtn) navBtn.classList.add('active');
+    const [title, sub] = PAGE_META[page] || [page, ''];
+    document.getElementById('page-title').textContent = title;
+    document.getElementById('page-sub').textContent = sub;
+    AppState.currentPage = page;
+    if (page === 'dashboard') loadDashboard(force);
+    if (page === 'today')     loadToday(force);
+    if (page === 'active')    loadActive(force);
+    if (page === 'history')   loadHistory(force);
+    if (page === 'analysis')  loadAnalysis(force);
+    if (page === 'archived')  loadArchived(force);
+}
+
+async function hardRefresh() {
+    AppData.dashboard = null; AppData.today = null; AppData.active = null;
+    AppData.activeAll = null; AppData.history = null; AppData.analysis = null; AppData.archived = null;
+    AppState.sessionCallCounts = {};
+    AppState.lastCallMap = {};
+    await api('clearCache', null, null, true);
+    toast('Cache cleared! Refreshing...', 'info');
+    nav(AppState.currentPage, true);
+}
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════
+async function loadDashboard(force) {
+    if (!force && AppData.dashboard) { renderDashboard(AppData.dashboard, true); return; }
+    const res = await api('getDashboardData');
+    if (!res) return;
+    AppData.dashboard = res.data;
+    renderDashboard(res.data, res.fromCache);
+    if (!AppData.today) api('getTodayCalling', null, null, true).then(r => { if (r) AppData.today = r.data; });
+}
+
+function renderDashboard(d, fromCache) {
+    document.getElementById('last-update-time').textContent = new Date().toLocaleTimeString();
+    document.getElementById('cache-indicator').innerHTML = fromCache ? '<span class="cache-badge">⚡ Cached</span>' : '';
+    document.getElementById('s-total').textContent = fmt(d.totalOutstanding);
+    document.getElementById('s-overdue').textContent = fmt(d.overdue);
+    document.getElementById('s-soon').textContent = fmt(d.dueSoon);
+    document.getElementById('s-calls').textContent = d.todayCallCount;
+    document.getElementById('s-parties').textContent = d.activeParties || 0;
+    document.getElementById('s-records').textContent = `${d.totalRecords} pending invoices`;
+    document.getElementById('badge-today').textContent = d.todayCallCount;
+    renderAging(d.agingBuckets, d.totalOutstanding);
+    renderTopOverdue(d.topOverdue || []);
+}
+
+function renderAging(buckets, total) {
+    const colors = { 'Within Credit':'#059669','<30 Days':'#2563EB','30-60 Days':'#D97706','60-90 Days':'#EA580C','90-120 Days':'#DC2626','>120 Days':'#7C3AED' };
+    document.getElementById('aging-container').innerHTML = Object.entries(buckets).map(([lbl, amt]) => {
+        const pct = total > 0 ? Math.max(2, (amt/total)*100) : 0;
+        return `<div class="aging-item"><span class="aging-lbl">${lbl}</span><div class="aging-bar-track"><div class="aging-bar-fill" style="width:${pct}%;background:${colors[lbl]||'#94A3B8'}"></div></div><span class="aging-amt">${fmt(amt)}</span></div>`;
+    }).join('');
+}
+
+function renderTopOverdue(records) {
+    const tbody = document.getElementById('tbl-overdue');
+    if (!records.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><span class="icon">🎉</span><p>No overdue accounts!</p></div></td></tr>`;
+        return;
+    }
+    tbody.innerHTML = records.map((r, i) => `
+    <tr>
+      <td style="color:var(--text-muted)">${i+1}</td>
+      <td><div class="td-primary">${r['Customer Name']}</div><div style="font-size:11px;color:var(--text-muted)">${r['Dealer Code']}</div></td>
+      <td><span class="mono">${r['Invoice No.']}</span></td>
+      <td style="font-size:12px">${r['Dispatch Date']||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--red)">${fmt(r.balanceNum||0)}</td>
+      <td><span style="font-weight:700;color:var(--red)">${r.dueDays} days</span></td>
+      <td>${pill(r.priority||'Critical')}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="openCallModal('${esc(r['Dealer Code'])}','${esc(r['Customer Name'])}','${esc(r['Location']||'')}','${esc(r['Invoice No.'])}',${r.balanceNum||0})">📞 Call</button></td>
+    </tr>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// DATE PARSING HELPER
+// ══════════════════════════════════════════════════════
+function _parseDateToStr(val) {
+    // Returns YYYY-MM-DD string or null
+    if (!val) return null;
+    try {
+        const s = String(val).trim();
+        // Handle "dd-MMM-yyyy" (e.g., "11-Apr-2026")
+        const m = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+        if (m) {
+            const months = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
+            const mo = months[m[2].toLowerCase()];
+            if (mo !== undefined) {
+                const d = new Date(parseInt(m[3]), mo, parseInt(m[1]));
+                return d.getFullYear() + '-' +
+                       String(d.getMonth()+1).padStart(2,'0') + '-' +
+                       String(d.getDate()).padStart(2,'0');
+            }
+        }
+        // Handle ISO / yyyy-mm-dd
+        const d = new Date(s.split(' ')[0]);
+        if (!isNaN(d.getTime())) {
+            return d.getFullYear() + '-' +
+                   String(d.getMonth()+1).padStart(2,'0') + '-' +
+                   String(d.getDate()).padStart(2,'0');
+        }
+        return null;
+    } catch { return null; }
+}
+
+// ══════════════════════════════════════════════════════
+// TODAY / PENDING CATEGORIZATION — CORE LOGIC
+//
+// RULE (simple & clear):
+//   TODAY tab  → followUp == today  OR  due date == today (od === 0)
+//   PENDING tab → followUp < today  OR  (od > 0 AND followup is null/past)
+//   FUTURE     → followUp > today  → skip (not shown in either tab)
+//   od < 0 AND no followup/future followup → skip
+//
+// Multiple calls same day = fully supported
+// If pending record is called and follow-up set to today → moves to TODAY tab
+// ══════════════════════════════════════════════════════
+function _categorizeTodayRecords(records) {
+    const todayRecs   = [];
+    const pendingRecs = [];
+
+    for (const r of records) {
+        const fupStr = _parseDateToStr(r['Next Follow-up']);
+        const od = typeof r.overdueDays === 'number' ? r.overdueDays : (r.dueDays || 0);
+
+        // Determine follow-up relationship to today
+        const fupIsToday  = fupStr === _todayStr;
+        const fupIsPast   = fupStr && fupStr < _todayStr;
+        const fupIsFuture = fupStr && fupStr > _todayStr;
+
+        // Skip: future follow-up set → not relevant yet
+        if (fupIsFuture) continue;
+
+        // TODAY: follow-up is today OR due date is today (od === 0)
+        if (fupIsToday || od === 0) {
+            todayRecs.push(r);
+            continue;
+        }
+
+        // PENDING: overdue (od > 0) OR follow-up was in past (missed)
+        // (also catches od > 0 with no follow-up set)
+        if (od > 0 || fupIsPast) {
+            pendingRecs.push(r);
+            continue;
+        }
+
+        // od < 0 (future due) and no follow-up → skip
+    }
+
+    return { todayRecs, pendingRecs };
+}
+
+// Sort by priority → then A→Z by Customer Name
+function _sortTodayRecords(records) {
+    const pOrder = { Critical:0, High:1, Medium:2, Normal:3, Reminder:4 };
+    return records.slice().sort((a, b) => {
+        const pd = (pOrder[a.priority] || 4) - (pOrder[b.priority] || 4);
+        if (pd !== 0) return pd;
+        return String(a['Customer Name'] || '').localeCompare(String(b['Customer Name'] || ''), 'en', { sensitivity: 'base' });
+    });
+}
+
+function setTodayFilter(f, el) {
+    AppState.todayFilter = f;
+    document.querySelectorAll('#tab-today-calling,#tab-pending-calling').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (AppData.today) renderToday(AppData.today);
+}
+
+async function loadToday(force) {
+    if (!force && AppData.today) { renderToday(AppData.today); return; }
+    document.getElementById('call-list-container').innerHTML = '<div class="card"><div class="card-body">' + Array(4).fill('<div class="sk sk-row" style="margin:6px 0"></div>').join('') + '</div></div>';
+    const res = await api('getTodayCalling');
+    if (!res) return;
+    AppData.today = res.data;
+    renderToday(res.data);
+}
+
+function renderToday(records) {
+    const { todayRecs, pendingRecs } = _categorizeTodayRecords(records);
+    const sortedToday   = _sortTodayRecords(todayRecs);
+    const sortedPending = _sortTodayRecords(pendingRecs);
+
+    // Update badges
+    document.getElementById('badge-today').textContent = sortedToday.length;
+    document.getElementById('today-count-badge').textContent = sortedToday.length;
+    document.getElementById('pending-count-badge').textContent = sortedPending.length;
+
+    const filtered = AppState.todayFilter === 'pending' ? sortedPending : sortedToday;
+
+    // Summary chips
+    const counts = { Critical:0, High:0, Medium:0, Normal:0, Reminder:0 };
+    filtered.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
+    const chipColors = { Critical:'var(--red)', High:'var(--orange)', Medium:'var(--yellow)', Normal:'var(--green)', Reminder:'var(--blue)' };
+    document.getElementById('today-chips').innerHTML = Object.entries(counts).filter(([,c]) => c > 0)
+        .map(([p,c]) => `<div class="s-chip"><div class="s-dot" style="background:${chipColors[p]}"></div><span class="lbl">${p}</span><span class="val">${c}</span></div>`).join('');
+
+    const container = document.getElementById('call-list-container');
+    if (!filtered.length) {
+        container.innerHTML = `<div class="card"><div class="empty-state"><span class="icon">🎉</span><p>${AppState.todayFilter==='pending'?'No pending calls!':'No calls for today!'}</p></div></div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(r => _buildCallCardHTML(r)).join('');
+}
+
+// Build a single call card HTML — extracted so we can also use it for in-place update
+function _buildCallCardHTML(r) {
+    const icons   = { Critical:'🚨', High:'⚠️', Medium:'📌', Normal:'📞', Reminder:'🔔' };
+    const iconBg  = { Critical:'var(--red-bg)', High:'var(--orange-bg)', Medium:'var(--yellow-bg)', Normal:'var(--green-bg)', Reminder:'var(--blue-light)' };
+    const prio    = r.priority || 'Normal';
+
+    // Session call count badge (how many times called today in this session)
+    const callCount = AppState.sessionCallCounts[r['Invoice No.']] || 0;
+    const callBadge = callCount > 0
+        ? `<span class="call-count-badge">✅ Called ${callCount}x</span>`
+        : '';
+
+    const hasRemark = r['Last Remarks'] && r['Last Remarks'] !== '-' && r['Last Remarks'] !== 'No Previous Call';
+    const fupStr    = _parseDateToStr(r['Next Follow-up']);
+    const fupLabel  = r['Next Follow-up']
+        ? `<span style="color:${fupStr===_todayStr?'var(--blue)':'var(--text-muted)'}">📅 Follow-up: ${r['Next Follow-up']}</span>`
+        : '';
+    const od = typeof r.overdueDays === 'number' ? r.overdueDays : (r.dueDays || 0);
+
+    return `<div class="call-card priority-${prio.toLowerCase()}" data-inv="${esc(r['Invoice No.'])}">
+      <div class="call-avatar" style="background:${iconBg[prio]||'var(--bg)'}">${icons[prio]||'📞'}</div>
+      <div class="call-info">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="font-size:14px;font-weight:700">
+            ${r['Customer Name']}
+            <span style="font-size:12px;font-weight:400;color:var(--text-muted)">(${r['Dealer Code']})</span>
+            ${pill(prio)}
+            ${callBadge}
+          </div>
+          <div style="background:var(--red-bg);color:var(--red);padding:4px 10px;border-radius:var(--radius-sm);font-weight:800;font-family:'JetBrains Mono';font-size:16px">${fmt(r['Balance'])}</div>
+        </div>
+        <div style="margin-top:8px;font-size:13px;display:flex;gap:12px;flex-wrap:wrap">
+          <span>📞 <a href="tel:${r['Dealer Ph. No.']}" style="color:var(--blue);font-weight:800;text-decoration:none;border-bottom:2px solid var(--blue-light)">${r['Dealer Ph. No.']||'No Phone'}</a></span>
+          <span>📄 <span class="mono">${r['Invoice No.']}</span></span>
+          <span style="font-weight:900">🚚 ${r['Dispatch Date']||'—'}</span>
+          ${fupLabel}
+        </div>
+        <div style="margin-top:6px;font-size:12px;display:flex;gap:12px;flex-wrap:wrap">
+          <span>⏳ Due: <strong style="color:${od>0?'var(--red)':'var(--green)'}">${od}d</strong></span>
+          <span>📍 ${r['Location']||'—'}</span>
+          ${r['Dealer Type']?`<span>🏷️ ${r['Dealer Type']}</span>`:''}
+          <span>👤 ${r['Sales Person']||'—'}</span>
+          <span style="font-weight:900">💰 <span style="font-family:'JetBrains Mono'">${fmt(r['Invoice Amount'])}</span></span>
+        </div>
+        ${hasRemark?`<div style="margin-top:10px;padding:10px;background:#F8FAFC;border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Last Conversation</div><div style="font-size:13px;color:var(--text-secondary)">💬 ${r['Last Remarks']}</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px">📅 ${r['Last Call Date']||'—'}</div></div>`:''}
+      </div>
+      <div class="call-actions" style="margin-left:16px">
+        <a href="tel:${r['Dealer Ph. No.']}" class="btn btn-outline btn-sm" style="justify-content:center;color:var(--blue);border-color:var(--blue)">📞 Call</a>
+        <button class="btn btn-primary btn-sm" onclick="openCallModal('${esc(r['Dealer Code'])}','${esc(r['Customer Name'])}','${esc(r['Location']||'')}','${esc(r['Invoice No.'])}',${r['Balance']})">✍️ Log Call</button>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// IN-PLACE CARD UPDATE (FIX 1: no scroll jump)
+// Called after a successful logCall when on today/pending page
+// Updates the specific card's remarks + balance + call count
+// Also moves card between tabs if follow-up date changed
+// ══════════════════════════════════════════════════════
+function _updateCardInPlace(invoiceNo, payload) {
+    const newFupStr = _parseDateToStr(payload.followUpDate);
+    const amtPaid   = parseFloat(payload.amountReceived) || 0;
+    const adjPaid   = parseFloat(payload.adjustment) || 0;
+
+    // Update AppData.today in memory
+    if (AppData.today) {
+        const rec = AppData.today.find(r => r['Invoice No.'] === invoiceNo);
+        if (rec) {
+            // Update balance
+            rec['Balance'] = Math.max(0, (rec['Balance'] || 0) - amtPaid - adjPaid);
+            // Update follow-up
+            if (payload.followUpDate) rec['Next Follow-up'] = payload.followUpDate;
+            // Update last remarks
+            rec['Last Remarks'] = payload.remarks;
+            rec['Last Call Date'] = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+        }
+    }
+
+    // Decide if card should stay in current tab or move
+    // After update: re-categorize
+    if (!AppData.today) return;
+    const { todayRecs, pendingRecs } = _categorizeTodayRecords(AppData.today);
+    const sortedToday   = _sortTodayRecords(todayRecs);
+    const sortedPending = _sortTodayRecords(pendingRecs);
+
+    // Update badges
+    document.getElementById('badge-today').textContent       = sortedToday.length;
+    document.getElementById('today-count-badge').textContent = sortedToday.length;
+    document.getElementById('pending-count-badge').textContent = sortedPending.length;
+
+    const currentFiltered = AppState.todayFilter === 'pending' ? sortedPending : sortedToday;
+
+    // Check if the invoice is still in current tab view
+    const stillInTab = currentFiltered.some(r => r['Invoice No.'] === invoiceNo);
+
+    if (stillInTab) {
+        // Just flash + update the specific card in place
+        const cardEl = document.querySelector(`.call-card[data-inv="${CSS.escape(invoiceNo)}"]`);
+        if (cardEl) {
+            const rec = AppData.today.find(r => r['Invoice No.'] === invoiceNo);
+            if (rec) {
+                const newHTML = _buildCallCardHTML(rec);
+                const temp = document.createElement('div');
+                temp.innerHTML = newHTML;
+                const newCard = temp.firstElementChild;
+                newCard.classList.add('flash-update');
+                cardEl.replaceWith(newCard);
+            }
+        }
+    } else {
+        // Card moved to the other tab — remove it from current view with animation
+        const cardEl = document.querySelector(`.call-card[data-inv="${CSS.escape(invoiceNo)}"]`);
+        if (cardEl) {
+            cardEl.style.transition = 'opacity 0.3s, transform 0.3s';
+            cardEl.style.opacity = '0';
+            cardEl.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+                cardEl.remove();
+                // Update chips
+                const remaining = currentFiltered.filter(r => r['Invoice No.'] !== invoiceNo);
+                const counts = { Critical:0, High:0, Medium:0, Normal:0, Reminder:0 };
+                remaining.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
+                const chipColors = { Critical:'var(--red)', High:'var(--orange)', Medium:'var(--yellow)', Normal:'var(--green)', Reminder:'var(--blue)' };
+                document.getElementById('today-chips').innerHTML = Object.entries(counts).filter(([,c]) => c > 0)
+                    .map(([p,c]) => `<div class="s-chip"><div class="s-dot" style="background:${chipColors[p]}"></div><span class="lbl">${p}</span><span class="val">${c}</span></div>`).join('');
+            }, 320);
+        }
+
+        // Show a toast hint
+        if (newFupStr === _todayStr) {
+            toast('Record aaj ke Today Calling mein move ho gaya ✅', 'info');
+        } else if (!newFupStr || newFupStr < _todayStr) {
+            toast('Record Pending mein hai — follow-up set karo', 'info');
+        }
+    }
+
+    // Update summary chips for remaining items
+    const counts = { Critical:0, High:0, Medium:0, Normal:0, Reminder:0 };
+    currentFiltered.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
+    const chipColors = { Critical:'var(--red)', High:'var(--orange)', Medium:'var(--yellow)', Normal:'var(--green)', Reminder:'var(--blue)' };
+    document.getElementById('today-chips').innerHTML = Object.entries(counts).filter(([,c]) => c > 0)
+        .map(([p,c]) => `<div class="s-chip"><div class="s-dot" style="background:${chipColors[p]}"></div><span class="lbl">${p}</span><span class="val">${c}</span></div>`).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// ACTIVE PAYMENTS
+// ══════════════════════════════════════════════════════
+async function loadActive(force) {
+    if (!force && AppData.activeAll) { applyActiveFilter(); return; }
+    document.getElementById('tbl-active').innerHTML = Array(6).fill('<tr><td colspan="14"><div class="sk sk-row"></div></td></tr>').join('');
+    const res = await api('getActivePayments', { page: 1, pageSize: 500 });
+    if (!res) return;
+    AppData.activeAll = res.data;
+    AppState.activePage = 1;
+    applyActiveFilter();
+}
+
+function filterActive(f, el) {
+    AppState.activeFilter = f;
+    AppState.activePage = 1;
+    document.querySelectorAll('.filter-tabs .ftab').forEach(t => t.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (AppData.activeAll) applyActiveFilter();
+    else loadActive(true);
+}
+
+function applyActiveFilter() {
+    const f = AppState.activeFilter;
+    let data = AppData.activeAll || [];
+    if (f === 'Paid')   data = data.filter(r => r.status === 'Paid');
+    else if (f === 'Active') data = data.filter(r => r.status !== 'Paid');
+    else if (f !== 'all') data = data.filter(r => r.priority === f && r.status !== 'Paid');
+    const ps = PAGE_SIZE.active;
+    const total = data.length;
+    const pg = AppState.activePage;
+    const start = (pg - 1) * ps;
+    renderActiveRows(data.slice(start, start + ps), { page: pg, pageSize: ps, total, totalPages: Math.ceil(total / ps) }, data);
+}
+
+function renderActiveRows(pageData, pagination, allFiltered) {
+    document.getElementById('active-count').textContent = `${pagination.total} records`;
+    const start = (pagination.page - 1) * pagination.pageSize;
+    const tbody = document.getElementById('tbl-active');
+    if (!pageData.length) {
+        tbody.innerHTML = `<tr><td colspan="14"><div class="empty-state"><span class="icon">✅</span><p>Koi record nahi</p></div></td></tr>`;
+        document.getElementById('active-pagination').innerHTML = '';
+        return;
+    }
+    tbody.innerHTML = pageData.map((r, i) => {
+        const paid = r.status === 'Paid';
+        return `<tr>
+      <td style="color:var(--text-muted)">${start+i+1}</td>
+      <td><div class="td-primary">${r['Customer Name']}</div><div style="font-size:11px;color:var(--text-muted)">${r['Dealer Code']}</div></td>
+      <td><a href="tel:${r['Dealer Ph. No.']}" style="color:var(--blue);text-decoration:none;font-weight:600;font-size:12.5px">${r['Dealer Ph. No.']||'—'}</a></td>
+      <td><span class="mono">${r['Invoice No.']}</span></td>
+      <td><span class="badge badge-reminder" style="font-size:11px">${r['Dealer Type']||'—'}</span></td>
+      <td style="font-size:12px">${r['Sales Person']||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${fmt(r['Invoice Amount'])}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${paid?'var(--green)':'var(--red)'}">${fmt(r['Balance'])}</td>
+      <td style="font-size:12px">${r['Dispatch Date']||'—'}</td>
+      <td style="font-size:12px">${fmtDate(r['Payment Due Date'])}</td>
+      <td style="font-size:12px;font-weight:700;color:${r.dueDays>0&&!paid?'var(--red)':'var(--green)'}">${r.dueDays}d</td>
+      <td>${pill(r.priority)}</td>
+      <td>${paid?'<span class="badge badge-paid">Paid</span>':'<span class="badge badge-active">Active</span>'}</td>
+      <td>${!paid?`<button class="btn btn-outline btn-sm" onclick="openCallModal('${esc(r['Dealer Code'])}','${esc(r['Customer Name'])}','${esc(r['Location']||'')}','${esc(r['Invoice No.'])}',${r['Balance']})">📞</button>`:'—'}</td>
+    </tr>`;
+    }).join('');
+
+    renderPagination('active-pagination', pagination, pg => {
+        AppState.activePage = pg;
+        const f = AppState.activeFilter;
+        let data = AppData.activeAll || [];
+        if (f === 'Paid') data = data.filter(r => r.status === 'Paid');
+        else if (f === 'Active') data = data.filter(r => r.status !== 'Paid');
+        else if (f !== 'all') data = data.filter(r => r.priority === f && r.status !== 'Paid');
+        const ps = PAGE_SIZE.active, start = (pg-1)*ps;
+        renderActiveRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) }, data);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// ══════════════════════════════════════════════════════
+// CALL HISTORY
+// ══════════════════════════════════════════════════════
+async function loadHistory(force) {
+    if (!force && AppData.history) {
+        const ps = PAGE_SIZE.history;
+        renderHistoryRows(AppData.history.slice(0, ps), { page:1, pageSize:ps, total:AppData.history.length, totalPages:Math.ceil(AppData.history.length/ps) });
+        return;
+    }
+    document.getElementById('tbl-history').innerHTML = Array(5).fill('<tr><td colspan="10"><div class="sk sk-row"></div></td></tr>').join('');
+    const res = await api('getCallingHistory', { page: 1, pageSize: 500 });
+    if (!res) return;
+    AppData.history = res.data;
+    AppState.historyPage = 1;
+    const ps = PAGE_SIZE.history;
+    renderHistoryRows(res.data.slice(0, ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+}
+
+function renderHistoryRows(records, pagination) {
+    const tbody = document.getElementById('tbl-history');
+    if (!records.length) { tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><span class="icon">📋</span><p>Koi record nahi</p></div></td></tr>`; document.getElementById('history-pagination').innerHTML = ''; return; }
+    const start = (pagination.page-1)*pagination.pageSize;
+    tbody.innerHTML = records.map((r,i) => `
+    <tr>
+      <td style="color:var(--text-muted)">${start+i+1}</td>
+      <td style="font-size:11.5px;color:var(--text-muted)">${r['Timestamp']||'—'}</td>
+      <td><div class="td-primary">${r['Customer Name']}</div><div style="font-size:11px;color:var(--text-muted)">${r['Dealer Code']}</div></td>
+      <td><span class="mono">${r['Invoice No.']}</span></td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:${r['Amount Received']>0?'var(--green)':'var(--text-muted)'}">${r['Amount Received']>0?fmt(r['Amount Received']):'—'}</td>
+      <td style="font-size:12px">${r['Scheduled Follow-up']?fmtDate(r['Scheduled Follow-up']):'—'}</td>
+      <td style="font-size:12px">${r['Follow Up Date']?fmtDate(r['Follow Up Date']):'—'}</td>
+      <td style="font-size:12px;max-width:200px;white-space:normal">${r['Remarks']||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${r['Adjustment Amount']>0?fmt(r['Adjustment Amount']):'—'}</td>
+      <td style="font-size:12px">${r['Adjustment Remarks']||'—'}</td>
+    </tr>`).join('');
+
+    renderPagination('history-pagination', pagination, pg => {
+        AppState.historyPage = pg;
+        const data = AppData.history || [];
+        const ps = PAGE_SIZE.history, start = (pg-1)*ps;
+        renderHistoryRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// ══════════════════════════════════════════════════════
+// ARCHIVES
+// ══════════════════════════════════════════════════════
+async function loadArchived(force) {
+    if (!force && AppData.archived) {
+        const ps = PAGE_SIZE.archived;
+        renderArchivedRows(AppData.archived.slice(0, ps), { page:1, pageSize:ps, total:AppData.archived.length, totalPages:Math.ceil(AppData.archived.length/ps) });
+        return;
+    }
+    document.getElementById('tbl-archived').innerHTML = Array(5).fill('<tr><td colspan="9"><div class="sk sk-row"></div></td></tr>').join('');
+    const res = await api('getArchivedData', { page: 1, pageSize: 500 });
+    if (!res) return;
+    AppData.archived = res.data;
+    document.getElementById('archive-count').textContent = `${res.pagination.total} historical records`;
+    const ps = PAGE_SIZE.archived;
+    renderArchivedRows(res.data.slice(0, ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+}
+
+function renderArchivedRows(data, pagination) {
+    const tbody = document.getElementById('tbl-archived');
+    if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><span class="icon">📁</span><p>Koi record nahi</p></div></td></tr>`; document.getElementById('archived-pagination').innerHTML = ''; return; }
+    const start = (pagination.page-1)*pagination.pageSize;
+    tbody.innerHTML = data.map((r,i) => `
+    <tr>
+      <td style="color:var(--text-muted)">${start+i+1}</td>
+      <td><div class="td-primary">${r['Customer Name']}</div><div style="font-size:11px;color:var(--text-muted)">${r['Dealer Code']}</div></td>
+      <td><span class="mono">${r['Invoice No.']}</span></td>
+      <td><span class="badge badge-reminder" style="font-size:11px">${r['Dealer Type']||'—'}</span></td>
+      <td style="font-size:12px">${r['Sales Person']||'—'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${fmt(r['Invoice Amount'])}</td>
+      <td style="font-size:12px">${fmtDate(r['Payment Due Date'])}</td>
+      <td>${pill(r.priority)}</td>
+      <td style="font-size:11.5px;color:var(--text-muted)">${fmtDate(r['Archived Date'])}</td>
+    </tr>`).join('');
+
+    renderPagination('archived-pagination', pagination, pg => {
+        const data = AppData.archived || [];
+        const ps = PAGE_SIZE.archived, start = (pg-1)*ps;
+        renderArchivedRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// ══════════════════════════════════════════════════════
+// PAGINATION
+// ══════════════════════════════════════════════════════
+function renderPagination(containerId, pg, onPageClick) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (pg.totalPages <= 1) { el.innerHTML = ''; return; }
+
+    const { page, totalPages, total, pageSize } = pg;
+    const from = (page-1)*pageSize + 1;
+    const to = Math.min(page*pageSize, total);
+
+    el.innerHTML = `
+        <span class="pg-info">${from}–${to} of ${total}</span>
+        <button class="pg-btn" id="pg-prev-${containerId}" ${page<=1?'disabled':''}>&lsaquo; Prev</button>
+        <span id="pg-nums-${containerId}"></span>
+        <button class="pg-btn" id="pg-next-${containerId}" ${page>=totalPages?'disabled':''}>Next &rsaquo;</button>
+    `;
+
+    const numsEl = document.getElementById('pg-nums-' + containerId);
+    const range = [];
+    for (let p = Math.max(1, page-2); p <= Math.min(totalPages, page+2); p++) range.push(p);
+    let numsHTML = '';
+    if (range[0] > 1) numsHTML += `<button class="pg-btn" data-p="1">1</button>${range[0]>2?'<span style="padding:0 4px;color:var(--text-muted)">…</span>':''}`;
+    range.forEach(p => { numsHTML += `<button class="pg-btn ${p===page?'active':''}" data-p="${p}">${p}</button>`; });
+    if (range[range.length-1] < totalPages) numsHTML += `${range[range.length-1]<totalPages-1?'<span style="padding:0 4px;color:var(--text-muted)">…</span>':''}<button class="pg-btn" data-p="${totalPages}">${totalPages}</button>`;
+    numsEl.innerHTML = numsHTML;
+
+    document.getElementById('pg-prev-' + containerId).addEventListener('click', () => onPageClick(page-1));
+    document.getElementById('pg-next-' + containerId).addEventListener('click', () => onPageClick(page+1));
+    numsEl.querySelectorAll('.pg-btn[data-p]').forEach(btn => {
+        btn.addEventListener('click', () => onPageClick(parseInt(btn.dataset.p)));
+    });
+}
+
+// ══════════════════════════════════════════════════════
+// ANALYSIS
+// ══════════════════════════════════════════════════════
+let analysisView = 'user';
+
+function setAnalysisView(view, el) {
+    analysisView = view;
+    document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    if (AppData.analysis && AppData.history) renderCurrentAnalysis(AppData.analysis, AppData.history);
+    else loadAnalysis();
+}
+
+async function loadAnalysis(force) {
+    if (!force && AppData.analysis && AppData.history) { renderCurrentAnalysis(AppData.analysis, AppData.history); return; }
+    document.getElementById('analysis-content').innerHTML = `<div class="empty-state"><span class="icon">⏳</span><p>Analyzing data...</p></div>`;
+    const [resA, resH] = await Promise.all([
+        api('getAnalysisData', null, null, true),
+        AppData.history ? Promise.resolve({ success: true, data: AppData.history }) : api('getCallingHistory', { page:1, pageSize:5000 }, null, true)
+    ]);
+    if (resA) AppData.analysis = resA.data;
+    if (resH) AppData.history = resH.data;
+    if (AppData.analysis) renderCurrentAnalysis(AppData.analysis, AppData.history || []);
+}
+
+function renderCurrentAnalysis(data, history) {
+    if (analysisView === 'dealer') renderDealerAnalysis(data.dealer, history);
+    else renderUserAnalysis(data.user, history);
+}
+
+function renderUserAnalysis(data, history) {
+    const dayMap = {};
+    for (const h of history) {
+        if (!h['Timestamp']) continue;
+        let dateStr;
+        try {
+            const parts = String(h['Timestamp']).split(' ');
+            dateStr = _parseDateToStr(parts[0]);
+            if (!dateStr) dateStr = parts[0];
+        } catch { continue; }
+        if (!dayMap[dateStr]) dayMap[dateStr] = { calls: [] };
+        dayMap[dateStr].calls.push({
+            inv: h['Invoice No.'] || '', amt: parseFloat(h['Amount Received']) || 0,
+            cust: h['Customer Name'] || '', remarks: h['Remarks'] || ''
+        });
+    }
+
+    const dates = Object.keys(dayMap).sort((a,b) => b.localeCompare(a));
+    const todayTotalCount = AppData.today ? AppData.today.length : 0;
+    const totalCalls = history.length;
+    const totalCollection = history.reduce((s, h) => s + (parseFloat(h['Amount Received'])||0), 0);
+    const daysWithCalls = dates.length;
+
+    document.getElementById('analysis-content').innerHTML = `
+    <div class="analysis-grid">
+      <div class="stat-card"><span class="stat-label">Total Calls Logged</span><div class="stat-value">${totalCalls}</div><div class="stat-footer">All time</div></div>
+      <div class="stat-card"><span class="stat-label">Total Collected</span><div class="stat-value" style="font-size:18px;color:var(--green)">${fmt(totalCollection)}</div><div class="stat-footer">All time</div></div>
+      <div class="stat-card"><span class="stat-label">Today's List</span><div class="stat-value" style="color:var(--blue)">${todayTotalCount}</div><div class="stat-footer">Records to call today</div></div>
+      <div class="stat-card"><span class="stat-label">Days Active</span><div class="stat-value">${daysWithCalls}</div><div class="stat-footer">Days with calls logged</div></div>
+    </div>
+    <div class="analysis-table-card">
+      <div class="card-head" style="padding:14px 20px">
+        <span class="card-title">Day-wise Call Log</span>
+        <span style="font-size:12px;color:var(--text-muted);margin-left:auto">
+          <span style="display:inline-block;width:10px;height:10px;background:var(--green);border-radius:2px;margin-right:4px"></span>Done &nbsp;
+          <span style="display:inline-block;width:10px;height:10px;background:#FED7AA;border-radius:2px;margin-right:4px"></span>Remaining
+        </span>
+      </div>
+      <div style="padding:6px 20px 16px">
+        ${!dates.length ? '<div class="empty-state"><span class="icon">📋</span><p>Koi call history nahi</p></div>' :
+          dates.slice(0, 30).map(dateStr => {
+            const day = dayMap[dateStr];
+            const callsDone = day.calls.length;
+            const isToday = dateStr === _todayStr;
+            const totalForDay = isToday ? Math.max(todayTotalCount, callsDone) : callsDone;
+            const donePct = totalForDay > 0 ? (callsDone/totalForDay*100) : 0;
+            const leftPct = isToday ? (100 - donePct) : 0;
+            const dayCollection = day.calls.reduce((s,c)=>s+c.amt,0);
+            return `<div class="day-bar-row">
+              <span class="day-lbl">${fmtDate(dateStr)}</span>
+              <div class="day-track">
+                <div class="day-done" style="width:${donePct}%"></div>
+                ${isToday&&leftPct>0?`<div class="day-left" style="left:${donePct}%;width:${leftPct}%"></div>`:''}
+              </div>
+              <span class="day-nums">${callsDone}${isToday?'/'+totalForDay:''} calls</span>
+              <span class="day-amt">${dayCollection>0?fmt(dayCollection):'—'}</span>
+            </div>`;
+          }).join('')
+        }
+      </div>
+    </div>
+    <div class="analysis-table-card" style="margin-top:16px">
+      <div class="card-head" style="padding:14px 20px"><span class="card-title">Detailed Call Log (Last 50)</span></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Date</th><th>Invoice</th><th>Customer</th><th>Amount Recd.</th><th>Remarks</th></tr></thead>
+        <tbody>
+        ${history.slice(0, 50).map((h, i) => `<tr>
+          <td style="color:var(--text-muted)">${i+1}</td>
+          <td style="font-size:11.5px">${h['Timestamp']||'—'}</td>
+          <td><span class="mono">${h['Invoice No.']||'—'}</span></td>
+          <td style="font-weight:600">${h['Customer Name']||'—'}</td>
+          <td style="font-family:'JetBrains Mono';font-size:12px;color:${(h['Amount Received']||0)>0?'var(--green)':'var(--text-muted)'}">${(h['Amount Received']||0)>0?fmt(h['Amount Received']):'—'}</td>
+          <td style="font-size:12px;max-width:220px;white-space:normal">${h['Remarks']||'—'}</td>
+        </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+}
+
+function renderDealerAnalysis(data, history) {
+    const stats = data.stats || {};
+    const dealerHistoryMap = {};
+    for (const h of history) {
+        const code = (h['Dealer Code'] || '').trim();
+        if (!code) continue;
+        if (!dealerHistoryMap[code]) dealerHistoryMap[code] = [];
+        dealerHistoryMap[code].push(h);
+    }
+
+    document.getElementById('analysis-content').innerHTML = `
+    <div class="analysis-grid">
+      <div class="stat-card"><span class="stat-label">Total Dealers</span><div class="stat-value">${stats.total||0}</div><div class="stat-footer">${stats.active||0} Active</div></div>
+      <div class="stat-card"><span class="stat-label">Total Outstanding</span><div class="stat-value" style="font-size:18px">${fmt(stats.totalOutstanding||0)}</div></div>
+      <div class="stat-card"><span class="stat-label">Critical</span><div class="stat-value" style="color:var(--red)">${stats.priorityBreakdown?.Critical||0}</div></div>
+      <div class="stat-card"><span class="stat-label">High</span><div class="stat-value" style="color:var(--orange)">${stats.priorityBreakdown?.High||0}</div></div>
+    </div>
+    <div class="analysis-table-card">
+      <div class="card-head" style="padding:14px 20px">
+        <span class="card-title">All Dealers</span>
+        <span style="font-size:12px;color:var(--text-muted);margin-left:auto">Click on a row to see full call history</span>
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Dealer Code</th><th>Customer Name</th><th>Outstanding</th><th>Calls Logged</th><th>Priority</th><th>Status</th></tr></thead>
+        <tbody>
+        ${data.list.map((d, i) => {
+            const callCount = (dealerHistoryMap[d.code] || []).length;
+            return `<tr style="cursor:pointer" onclick="openDealerModal('${esc(d.code)}','${esc(d.name)}')">
+              <td style="color:var(--text-muted)">${i+1}</td>
+              <td><span class="mono">${d.code}</span></td>
+              <td><div style="font-weight:600">${d.name}</div><div style="font-size:11px;color:var(--text-muted)">${d.location||'—'}</div></td>
+              <td style="font-weight:700;font-family:'JetBrains Mono'">${fmt(d.totalOutstanding)}</td>
+              <td><span style="background:var(--blue-light);color:var(--blue);padding:2px 8px;border-radius:10px;font-size:12px;font-weight:700">${callCount}</span></td>
+              <td>${pill(d.priority)}</td>
+              <td><span class="badge badge-${d.status.toLowerCase()}">${d.status}</span></td>
+            </tr>`;
+        }).join('')}
+        </tbody>
+      </table></div>
+    </div>`;
+
+    window._dealerHistoryMap = dealerHistoryMap;
+    window._dealerList = data.list;
+}
+
+function openDealerModal(code, name) {
+    const histList   = (window._dealerHistoryMap || {})[code] || [];
+    const dealerInfo = (window._dealerList || []).find(d => d.code === code) || {};
+
+    document.getElementById('dealer-modal-name').textContent = name + ' (' + code + ')';
+    document.getElementById('dealer-modal-meta').textContent = (dealerInfo.location || '') + (dealerInfo.invoices ? ' · ' + dealerInfo.invoices + ' invoices' : '');
+
+    const totalCalls    = histList.length;
+    const totalReceived = histList.reduce((s,h)=>s+(parseFloat(h['Amount Received'])||0),0);
+    const totalAdj      = histList.reduce((s,h)=>s+(parseFloat(h['Adjustment Amount'])||0),0);
+
+    document.getElementById('dealer-modal-stats').innerHTML = [
+        ['📞 Calls Logged', totalCalls, 'var(--blue)'],
+        ['💰 Total Received', fmt(totalReceived), 'var(--green)'],
+        ['📋 Adjustments', fmt(totalAdj), 'var(--orange)'],
+        ['💳 Outstanding', fmt(dealerInfo.totalOutstanding||0), 'var(--red)'],
+    ].map(([lbl, val, color]) => `
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;flex:1;min-width:120px">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${lbl}</div>
+            <div style="font-size:16px;font-weight:800;color:${color};font-family:'JetBrains Mono'">${val}</div>
+        </div>`).join('');
+
+    document.getElementById('dealer-modal-timeline').innerHTML = !histList.length
+        ? '<div class="empty-state"><span class="icon">📋</span><p>Koi call history nahi</p></div>'
+        : histList.map(h => {
+            const amt = parseFloat(h['Amount Received']) || 0;
+            const adj = parseFloat(h['Adjustment Amount']) || 0;
+            return `<div class="timeline-item">
+                <div class="timeline-dot ${amt>0?'paid':''}"></div>
+                <div class="timeline-meta">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+                        <span style="font-size:12px;font-weight:700;color:var(--text-primary)">${h['Timestamp']||'—'}</span>
+                        ${amt>0?`<span style="font-family:'JetBrains Mono';font-size:13px;font-weight:700;color:var(--green)">+${fmt(amt)}</span>`:''}
+                        ${adj>0?`<span style="font-family:'JetBrains Mono';font-size:12px;color:var(--orange)">ADJ: ${fmt(adj)}</span>`:''}
+                    </div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
+                        Invoice: <strong>${h['Invoice No.']||'—'}</strong>
+                        ${h['Follow Up Date']?` · Follow-up: ${fmtDate(h['Follow Up Date'])}` :''}
+                    </div>
+                    ${h['Remarks']?`<div style="font-size:13px;color:var(--text-secondary);margin-top:6px;padding:7px 10px;background:var(--bg);border-radius:var(--radius-sm)">💬 ${h['Remarks']}</div>`:''}
+                    ${h['Adjustment Remarks']?`<div style="font-size:11.5px;color:var(--orange);margin-top:4px">ADJ Reason: ${h['Adjustment Remarks']}</div>`:''}
+                </div>
+            </div>`;
+        }).join('');
+
+    openModal('modal-dealer');
+}
+
+// ══════════════════════════════════════════════════════
+// FORMS
+// ══════════════════════════════════════════════════════
+async function submitAddInvoice() {
+    const p = {
+        salesPerson: v('f-sp'), dispatchDate: v('f-dd'), dealerCode: v('f-dc'),
+        customerName: v('f-cn'), location: v('f-loc'), dealerType: v('f-dt'),
+        orderNo: v('f-ord'), dealerPhNo: v('f-ph'), invoiceNo: v('f-inv'),
+        invoiceAmount: v('f-amt'), creditDays: v('f-crd'),
+    };
+    if (!p.salesPerson || !p.customerName || !p.invoiceNo || !p.invoiceAmount) {
+        toast('Sab required (*) fields bharo', 'error'); return;
+    }
+    loader('Invoice add ho raha hai...');
+    const res = await api('addInvoice', p);
+    hideLoader();
+    if (!res) return;
+    AppData.dashboard = null; AppData.today = null; AppData.active = null; AppData.activeAll = null;
+    toast(res.message, 'success');
+    closeModal('modal-add');
+    if (AppState.currentPage === 'dashboard') loadDashboard(true);
+    if (AppState.currentPage === 'active') loadActive(true);
+}
+
+function openCallModal(dc, name, loc, inv, bal) {
+    document.getElementById('c-name').textContent = name;
+    document.getElementById('c-inv').textContent = inv;
+    document.getElementById('c-loc').textContent = loc;
+    document.getElementById('c-bal').textContent = fmt(bal);
+    document.getElementById('c-dc').value = dc;
+    document.getElementById('c-amt').value = '';
+    document.getElementById('c-rmk').value = '';
+    document.getElementById('c-adj').value = '';
+    document.getElementById('c-adjr').value = '';
+    // Reset submit button state
+    const btn = document.getElementById('btn-save-call');
+    btn.disabled = false;
+    btn.innerHTML = 'Save Call Log';
+    const m = document.getElementById('modal-call');
+    m.dataset.inv = inv; m.dataset.name = name; m.dataset.loc = loc; m.dataset.bal = bal || 0;
+    openModal('modal-call');
+}
+
+async function submitLogCall() {
+    const m = document.getElementById('modal-call');
+    const invoiceNo = m.dataset.inv;
+    const p = {
+        dealerCode:        v('c-dc'),
+        customerName:      m.dataset.name,
+        location:          m.dataset.loc,
+        invoiceNo:         invoiceNo,
+        amountReceived:    v('c-amt') || 0,
+        followUpDate:      v('c-fup'),
+        remarks:           v('c-rmk'),
+        adjustment:        v('c-adj') || 0,
+        adjustmentRemarks: v('c-adjr'),
+    };
+    const bal = parseFloat(m.dataset.bal) || 0;
+    const amt = parseFloat(p.amountReceived) || 0;
+    const adj = parseFloat(p.adjustment) || 0;
+
+    if (amt + adj > bal) {
+        toast(`Total (₹${amt+adj}) balance (₹${bal}) se zyada nahi ho sakta`, 'error');
+        return;
+    }
+    if (!p.remarks) {
+        toast('Customer remarks daalo', 'error');
+        return;
+    }
+
+    // ── Spinner on submit button ──────────────────────────────
+    const btn = document.getElementById('btn-save-call');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span> Saving...';
+
+    const res = await api('logCall', p);
+
+    // Reset button regardless
+    btn.disabled = false;
+    btn.innerHTML = 'Save Call Log';
+
+    if (!res) return;
+
+    // ── Update session call count for this invoice ────────────
+    AppState.sessionCallCounts[invoiceNo] = (AppState.sessionCallCounts[invoiceNo] || 0) + 1;
+
+    // Invalidate caches that need server refresh
+    AppData.dashboard = null;
+    AppData.activeAll = null;
+    AppData.history   = null;
+    AppData.analysis  = null;
+    // NOTE: We do NOT clear AppData.today — we update it in memory below
+
+    toast(res.message || 'Call logged ✅', 'success');
+    closeModal('modal-call');
+
+    // ══════════════════════════════════════════════════
+    // FIX 1: In-place update — NO full page reload
+    // Scroll position is completely preserved
+    // ══════════════════════════════════════════════════
+    if (AppState.currentPage === 'today' && AppData.today) {
+        _updateCardInPlace(invoiceNo, p);
+    } else if (AppState.currentPage === 'active') {
+        // Active page: just update balance in local data, re-render
+        if (AppData.activeAll) {
+            const rec = AppData.activeAll.find(r => r['Invoice No.'] === invoiceNo);
+            if (rec) {
+                rec['Balance'] = Math.max(0, (rec['Balance']||0) - amt - adj);
+                if (rec['Balance'] <= 0) rec.status = 'Paid';
+            }
+            applyActiveFilter();
+        }
+    } else if (AppState.currentPage === 'dashboard') {
+        loadDashboard(true);
+    } else if (AppState.currentPage === 'history') {
+        loadHistory(true);
+    }
+}
+
+// ══════════════════════════════════════════════════════
+// GLOBAL SEARCH
+// ══════════════════════════════════════════════════════
+async function globalSearch(val) {
+    clearTimeout(AppState.searchTimer);
+    const q = val.trim().toLowerCase();
+
+    if (AppState.currentPage === 'active' && AppData.activeAll) {
+        const filtered = q ? AppData.activeAll.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'], r['Dealer Ph. No.'])) : AppData.activeAll;
+        const ps = PAGE_SIZE.active;
+        renderActiveRows(filtered.slice(0, ps), { page:1, pageSize:ps, total:filtered.length, totalPages:Math.ceil(filtered.length/ps) }, filtered);
+        return;
+    }
+    if (AppState.currentPage === 'today' && AppData.today) {
+        const filteredData = q ? AppData.today.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'], r['Dealer Ph. No.'])) : AppData.today;
+        renderToday(filteredData);
+        return;
+    }
+    if (AppState.currentPage === 'history' && AppData.history) {
+        const filtered = q ? AppData.history.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'], r['Remarks'])) : AppData.history;
+        const ps = PAGE_SIZE.history;
+        renderHistoryRows(filtered.slice(0, ps), { page:1, pageSize:ps, total:filtered.length, totalPages:Math.ceil(filtered.length/ps) });
+        return;
+    }
+    if (AppState.currentPage === 'archived' && AppData.archived) {
+        const filtered = q ? AppData.archived.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'])) : AppData.archived;
+        const ps = PAGE_SIZE.archived;
+        renderArchivedRows(filtered.slice(0, ps), { page:1, pageSize:ps, total:filtered.length, totalPages:Math.ceil(filtered.length/ps) });
+        return;
+    }
+
+    if (q.length < 2) { if (AppState.currentPage === 'search') nav('dashboard'); return; }
+    AppState.searchTimer = setTimeout(async () => {
+        nav('search');
+        document.getElementById('tbl-search').innerHTML = Array(5).fill('<tr><td colspan="9"><div class="sk sk-row"></div></td></tr>').join('');
+        const res = await api('searchRecords', null, val);
+        if (!res) return;
+        document.getElementById('search-count').textContent = `${res.data.length} results`;
+        const tbody = document.getElementById('tbl-search');
+        if (!res.data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><span class="icon">🔍</span><p>Koi record nahi mila</p></div></td></tr>`; return; }
+        tbody.innerHTML = res.data.map(r => `
+        <tr>
+          <td><div class="td-primary">${r['Customer Name']}</div><div style="font-size:11px;color:var(--text-muted)">${r['Dealer Code']}</div></td>
+          <td><a href="tel:${r['Dealer Ph. No.']}" style="color:var(--blue);text-decoration:none;font-weight:600">${r['Dealer Ph. No.']||'—'}</a></td>
+          <td><span class="mono">${r['Invoice No.']}</span></td>
+          <td style="font-size:12px">${r['Dispatch Date']||'—'}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--red)">${fmt(r['Balance'])}</td>
+          <td style="font-size:12px">${fmtDate(r['Payment Due Date'])}</td>
+          <td style="font-size:12px;font-weight:700;color:${r.overdueDays>0?'var(--red)':'var(--green)'}">${Math.max(0,r.overdueDays)}d</td>
+          <td>${r['Status']==='Paid'?'<span class="badge badge-paid">Paid</span>':pill(r.priority||'Normal')}</td>
+          <td>${r['Status']!=='Paid'?`<button class="btn btn-outline btn-sm" onclick="openCallModal('${esc(r['Dealer Code'])}','${esc(r['Customer Name'])}','${esc(r['Location']||'')}','${esc(r['Invoice No.'])}',${r['Balance']})">📞</button>`:'—'}</td>
+        </tr>`).join('');
+    }, 400);
+}
+
+async function runArchiveNow() {
+    if (!confirm('Sab PAID invoices Archive mein move honge. Continue?')) return;
+    loader('Archiving paid invoices...');
+    const res = await api('archiveNow');
+    hideLoader();
+    if (!res) return;
+    AppData.dashboard = null; AppData.today = null; AppData.activeAll = null; AppData.archived = null;
+    toast(res.message, 'success');
+    nav(AppState.currentPage, true);
+}
+
+function downloadActiveExcel() {
+    const allData = AppData.activeAll;
+    if (!allData || !allData.length) { toast('Pehle Active Payments page kholo', 'error'); return; }
+    let filtered = allData;
+    const f = AppState.activeFilter;
+    if (f === 'Paid') filtered = allData.filter(r => r.status === 'Paid');
+    else if (f === 'Active') filtered = allData.filter(r => r.status !== 'Paid');
+    else if (f !== 'all') filtered = allData.filter(r => r.priority === f && r.status !== 'Paid');
+    if (!filtered.length) { toast('Koi record nahi', 'info'); return; }
+    const headers = ['Customer Name','Dealer Code','Phone No.','Invoice No.','Sales Person','Invoice Amount','Balance','Dispatch Date','Due Date','Due Days','Priority','Status'];
+    const csvRows = [headers.join(',')];
+    filtered.forEach(r => csvRows.push([
+        `"${(r['Customer Name']||'').replace(/"/g,'""')}"`,
+        `"${(r['Dealer Code']||'').replace(/"/g,'""')}"`,
+        `"${(r['Dealer Ph. No.']||'').replace(/"/g,'""')}"`,
+        `"${(r['Invoice No.']||'').replace(/"/g,'""')}"`,
+        `"${(r['Sales Person']||'').replace(/"/g,'""')}"`,
+        r['Invoice Amount']||0, r['Balance']||0,
+        `"${r['Dispatch Date']||''}"`,
+        `"${fmtDate(r['Payment Due Date'])}"`,
+        r.dueDays||0, `"${r.priority||''}"`, r.status||'Active'
+    ].join(',')));
+    const blob = new Blob(["\ufeff" + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const a = Object.assign(document.createElement('a'), {
+        href: URL.createObjectURL(blob),
+        download: `Active_Payments_${new Date().toISOString().slice(0,10)}.csv`
+    });
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(a.href); }, 100);
+    toast('Download shuru!', 'success');
+}
+
+// ══════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════
+function matchQ(q, ...fields) { return fields.some(f => f && String(f).toLowerCase().includes(q)); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => { if (e.target.classList.contains('modal-bg')) closeModal(e.target.id); });
+function loader(msg) { document.getElementById('loader-msg').textContent = msg || 'Loading...'; document.getElementById('loader').classList.add('show'); }
+function hideLoader() { document.getElementById('loader').classList.remove('show'); }
+
+function toast(msg, type) {
+    type = type || 'info';
+    const icons = { success:'✅', error:'❌', info:'ℹ️' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
+    document.getElementById('toasts').appendChild(el);
+    setTimeout(() => { el.style.transition = 'opacity 0.3s'; el.style.opacity = '0'; }, 3500);
+    setTimeout(() => el.remove(), 3800);
+}
+
+function fmt(n) {
+    const val = parseFloat(n) || 0;
+    if (val >= 1e7) return '₹' + (val/1e7).toFixed(2) + ' Cr';
+    if (val >= 1e5) return '₹' + (val/1e5).toFixed(2) + ' L';
+    return '₹' + val.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+}
+
+function fmtDate(val) {
+    if (!val) return '—';
+    try {
+        const s = String(val).trim();
+        const m = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
+        if (m) {
+            const months = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
+            const mo = months[m[2].toLowerCase()];
+            if (mo !== undefined) return new Date(parseInt(m[3]), mo, parseInt(m[1])).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+        }
+        return new Date(s).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+    } catch { return val; }
+}
+
+function pill(priority) {
+    priority = priority || 'Normal';
+    const map = { Critical:'critical', High:'high', Medium:'medium', Normal:'normal', Reminder:'reminder' };
+    return `<span class="badge badge-${map[priority]||'normal'}">${priority}</span>`;
+}
+
+function esc(s) { return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+function v(id) { return (document.getElementById(id)||{}).value || ''; }
+</script>
+</body>
+</html>

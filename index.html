@@ -43,7 +43,12 @@
         .nav-btn.active::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 3px; background: #60A5FA; border-radius: 0 3px 3px 0; }
         .nav-icon { width: 18px; text-align: center; font-size: 15px; flex-shrink: 0; }
         .nav-badge { margin-left: auto; background: #DC2626; color: #fff; font-size: 10px; font-weight: 700; min-width: 18px; height: 18px; border-radius: 9px; display: flex; align-items: center; justify-content: center; padding: 0 5px; }
-        .sidebar-footer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.08); font-size: 11px; color: rgba(255,255,255,.28); text-align: center; flex-shrink: 0; }
+
+        /* FIX 1: Settings button in sidebar footer */
+        .sidebar-footer { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,.08); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .sidebar-footer-txt { font-size: 11px; color: rgba(255,255,255,.28); }
+        .settings-btn { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 4px 10px; font-size: 11px; color: rgba(255,255,255,.5); cursor: pointer; font-family: inherit; transition: all .15s; }
+        .settings-btn:hover { background: rgba(255,255,255,.15); color: rgba(255,255,255,.9); border-color: rgba(255,255,255,.25); }
 
         .main { margin-left: var(--sidebar-w); min-height: 100vh; display: flex; flex-direction: column; }
         .topbar { height: var(--header-h); background: var(--white); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 24px; gap: 16px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow-sm); }
@@ -72,6 +77,11 @@
         /* In-place update animation for call cards */
         @keyframes cardFlash { 0%{background:rgba(16,185,129,0.15)} 100%{background:transparent} }
         .call-card.flash-update { animation: cardFlash 1.2s ease-out forwards; }
+
+        /* Saving overlay on card */
+        .call-card.saving-state { opacity: 0.65; pointer-events: none; }
+        .call-card.saving-state::after { content: '⏳ Saving...'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,.6); color: #fff; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 20px; pointer-events: none; z-index: 10; }
+        .call-card { position: relative; }
 
         .content { flex: 1; padding: 22px 24px; max-width: 1400px; width: 100%; }
         .page { display: none; animation: fadeIn .22s ease; }
@@ -143,9 +153,10 @@
         .call-card.priority-reminder { border-left: 4px solid var(--blue); }
         .call-avatar { width: 42px; height: 42px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
         .call-info { flex: 1; min-width: 0; }
+        /* FIX 2: Only one action button (Log Call) — call-actions has single button now */
         .call-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 
-        /* Call count badge on card - shows how many times called today */
+        /* Call count badge on card */
         .call-count-badge { display: inline-flex; align-items: center; gap: 3px; background: var(--blue-light); color: var(--blue); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
 
         .filter-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
@@ -273,7 +284,13 @@
         <button class="nav-btn" onclick="openModal('modal-add')"><span class="nav-icon">＋</span> Add Invoice</button>
         <button class="nav-btn" onclick="hardRefresh()"><span class="nav-icon">🔄</span> Force Refresh</button>
     </nav>
-    <div class="sidebar-footer">PayTrack v12.0 &nbsp;·&nbsp; © 2026</div>
+    <!-- FIX 1: Settings button in footer to re-enter API URL -->
+    <div class="sidebar-footer">
+        <span class="sidebar-footer-txt">PayTrack v12.0 &nbsp;·&nbsp; © 2026</span>
+        <button class="settings-btn" onclick="openSettingsModal()" title="Change Web App URL">
+            ⚙️ Settings
+        </button>
+    </div>
 </aside>
 
 <div class="main">
@@ -482,6 +499,7 @@
             <input type="hidden" id="c-dc">
             <div class="form-grid">
                 <div class="field"><label>Amount Received (₹)</label><input id="c-amt" type="number" placeholder="0 if no payment today"></div>
+                <!-- FIX 3: Follow-up date always set to today in openCallModal() -->
                 <div class="field"><label>Follow-up Date</label><input id="c-fup" type="date" required></div>
                 <div class="field full"><label>Customer Response / Remarks *</label><textarea id="c-rmk" placeholder="What did customer say?"></textarea></div>
                 <div class="field"><label>Adjustment (₹)</label><input id="c-adj" type="number" placeholder="0"></div>
@@ -514,33 +532,59 @@
     </div>
 </div>
 
+<!-- FIX 1: Settings / Change API URL Modal -->
+<div class="modal-bg" id="modal-settings">
+    <div class="modal" style="width:500px">
+        <div class="modal-hd">
+            <div class="modal-hd-icon" style="background:var(--yellow-bg)">⚙️</div>
+            <span class="modal-title">Settings — Web App URL</span>
+            <button class="modal-close" onclick="closeModal('modal-settings')">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="background:var(--blue-light);border:1px solid rgba(55,114,255,.2);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--blue);">
+                ℹ️ Apps Script deploy ka URL yahan paste karo. <strong>Execute as: Me, Access: Anyone</strong> setting honi chahiye.
+            </div>
+            <div class="field">
+                <label>Current Web App URL</label>
+                <input type="text" id="settings-url-input" placeholder="https://script.google.com/macros/s/.../exec" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+            </div>
+            <div id="settings-current-url" style="margin-top:8px;font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;word-break:break-all;padding:6px 10px;background:var(--bg);border-radius:var(--radius-sm);border:1px solid var(--border);">
+                Current: Not set
+            </div>
+        </div>
+        <div class="modal-ft">
+            <button class="btn btn-ghost" onclick="closeModal('modal-settings')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveSettingsUrl()">💾 Save URL</button>
+        </div>
+    </div>
+</div>
+
 <div class="loader-wrap" id="loader"><div class="spinner"></div><div class="loader-txt" id="loader-msg">Loading...</div></div>
 <div class="toast-wrap" id="toasts"></div>
 
 <script>
 // ══════════════════════════════════════════════════════
-// PAYTRACK v12.0
+// PAYTRACK v12.1
 //
-// FIX 1 — Scroll Preservation:
-//   submitLogCall() → in-place card update (optimistic UI)
-//   No full page reload → scroll position preserved
-//   AppData.today cache updated locally without re-render
-//
-// FIX 2 — Today/Pending Logic (CORRECT):
-//   TODAY tab  = followUp date == TODAY  OR  due date == TODAY (od === 0)
-//   PENDING tab = followUp date < TODAY  OR  (od > 0 AND no followup / followup < today)
-//   Rule: agar aaj ki date hai follow-up mein → always TODAY tab
-//   Rule: agar kal ya baad ki → future → skip (not in either tab)
-//   Rule: multiple calls same day → fully supported
-//
-// FIX 3 — After logCall, pending record with today follow-up → moves to TODAY tab
+// CHANGES from v12.0:
+// FIX 1 — Re-enter API URL: Settings button in sidebar footer
+//          openSettingsModal() shows current URL & allows change
+// FIX 2 — Today Calling: 📞 Call button REMOVED from call-actions
+//          Phone number tap-to-call link still present in info area
+// FIX 3 — Follow-up date: Always resets to TODAY in openCallModal()
+//          Not the previously selected value
+// FIX 4 — A-Z sort: Primary sort = Customer Name A→Z
+//          Secondary = Invoice No. (same customer = same spot, together)
+//          Priority sort removed as primary key
+// FIX 5 — Instant modal close: closeModal() fires IMMEDIATELY on save
+//          API call happens in background async, UI updates via toast
 // ══════════════════════════════════════════════════════
 
 let WEBAPP_URL = localStorage.getItem('paytrack_webapp_url') || '';
 
 const AppData = {
     dashboard: null,
-    today: null,       // raw array from server (all eligible records)
+    today: null,
     active: null,
     activeAll: null,
     history: null,
@@ -556,9 +600,7 @@ const AppState = {
     archivedPage: 1,
     todayFilter: 'today',
     searchTimer: null,
-    // Tracks per-invoice call count for current session (for badge display)
     sessionCallCounts: {},
-    // Stores last remarks per invoice for optimistic update
     lastCallMap: {},
 };
 
@@ -583,13 +625,47 @@ function saveWebAppUrl() {
     loadDashboard(true);
 }
 
+// FIX 1: Settings modal functions
+function openSettingsModal() {
+    const input = document.getElementById('settings-url-input');
+    const current = document.getElementById('settings-current-url');
+    input.value = WEBAPP_URL || '';
+    current.textContent = 'Current: ' + (WEBAPP_URL || 'Not set');
+    openModal('modal-settings');
+    setTimeout(() => input.focus(), 200);
+}
+
+function saveSettingsUrl() {
+    const val = document.getElementById('settings-url-input').value.trim();
+    if (!val || !val.startsWith('https://')) {
+        toast('Valid https:// URL daalo (https:// se start hona chahiye)', 'error');
+        return;
+    }
+    const isChanged = val !== WEBAPP_URL;
+    WEBAPP_URL = val;
+    localStorage.setItem('paytrack_webapp_url', val);
+    document.getElementById('config-banner').classList.add('hidden');
+    closeModal('modal-settings');
+    if (isChanged) {
+        // Clear all cached data when URL changes
+        AppData.dashboard = null; AppData.today = null; AppData.active = null;
+        AppData.activeAll = null; AppData.history = null; AppData.analysis = null; AppData.archived = null;
+        toast('✅ URL saved! Reconnecting...', 'success');
+        setTimeout(() => loadDashboard(true), 300);
+    } else {
+        toast('URL same hai — koi change nahi', 'info');
+    }
+}
+
 // ── INIT ───────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const now = new Date();
     document.getElementById('today-date').textContent =
         now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+
+    // Set dispatch date for add invoice form
     document.getElementById('f-dd').value = now.toISOString().split('T')[0];
-    document.getElementById('c-fup').value = now.toISOString().split('T')[0];
+    // NOTE: c-fup (follow-up date) is set in openCallModal() every time — FIX 3
 
     if (WEBAPP_URL) {
         document.getElementById('config-banner').classList.add('hidden');
@@ -626,7 +702,7 @@ function setProgress(p) { _pct = p; document.getElementById('progress-fill').sty
 // API
 // ══════════════════════════════════════════════════════
 async function api(action, payload, query, silent) {
-    if (!WEBAPP_URL) { toast('Pehle Web App URL set karo', 'error'); return null; }
+    if (!WEBAPP_URL) { toast('Pehle Web App URL set karo (⚙️ Settings)', 'error'); return null; }
     if (!silent) startProgress();
     const body = { action };
     if (payload !== undefined) body.payload = payload;
@@ -753,11 +829,9 @@ function renderTopOverdue(records) {
 // DATE PARSING HELPER
 // ══════════════════════════════════════════════════════
 function _parseDateToStr(val) {
-    // Returns YYYY-MM-DD string or null
     if (!val) return null;
     try {
         const s = String(val).trim();
-        // Handle "dd-MMM-yyyy" (e.g., "11-Apr-2026")
         const m = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
         if (m) {
             const months = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
@@ -769,7 +843,6 @@ function _parseDateToStr(val) {
                        String(d.getDate()).padStart(2,'0');
             }
         }
-        // Handle ISO / yyyy-mm-dd
         const d = new Date(s.split(' ')[0]);
         if (!isNaN(d.getTime())) {
             return d.getFullYear() + '-' +
@@ -781,16 +854,7 @@ function _parseDateToStr(val) {
 }
 
 // ══════════════════════════════════════════════════════
-// TODAY / PENDING CATEGORIZATION — CORE LOGIC
-//
-// RULE (simple & clear):
-//   TODAY tab  → followUp == today  OR  due date == today (od === 0)
-//   PENDING tab → followUp < today  OR  (od > 0 AND followup is null/past)
-//   FUTURE     → followUp > today  → skip (not shown in either tab)
-//   od < 0 AND no followup/future followup → skip
-//
-// Multiple calls same day = fully supported
-// If pending record is called and follow-up set to today → moves to TODAY tab
+// TODAY / PENDING CATEGORIZATION
 // ══════════════════════════════════════════════════════
 function _categorizeTodayRecords(records) {
     const todayRecs   = [];
@@ -800,40 +864,40 @@ function _categorizeTodayRecords(records) {
         const fupStr = _parseDateToStr(r['Next Follow-up']);
         const od = typeof r.overdueDays === 'number' ? r.overdueDays : (r.dueDays || 0);
 
-        // Determine follow-up relationship to today
         const fupIsToday  = fupStr === _todayStr;
         const fupIsPast   = fupStr && fupStr < _todayStr;
         const fupIsFuture = fupStr && fupStr > _todayStr;
 
-        // Skip: future follow-up set → not relevant yet
         if (fupIsFuture) continue;
 
-        // TODAY: follow-up is today OR due date is today (od === 0)
         if (fupIsToday || od === 0) {
             todayRecs.push(r);
             continue;
         }
 
-        // PENDING: overdue (od > 0) OR follow-up was in past (missed)
-        // (also catches od > 0 with no follow-up set)
         if (od > 0 || fupIsPast) {
             pendingRecs.push(r);
             continue;
         }
-
-        // od < 0 (future due) and no follow-up → skip
     }
 
     return { todayRecs, pendingRecs };
 }
 
-// Sort by priority → then A→Z by Customer Name
+// FIX 4: Sort A-Z by Customer Name (PRIMARY), Invoice No (SECONDARY for same customer)
+// This ensures same customer's multiple invoices appear together, sorted naturally
 function _sortTodayRecords(records) {
-    const pOrder = { Critical:0, High:1, Medium:2, Normal:3, Reminder:4 };
     return records.slice().sort((a, b) => {
-        const pd = (pOrder[a.priority] || 4) - (pOrder[b.priority] || 4);
-        if (pd !== 0) return pd;
-        return String(a['Customer Name'] || '').localeCompare(String(b['Customer Name'] || ''), 'en', { sensitivity: 'base' });
+        // Primary: Customer Name A→Z (case-insensitive)
+        const nameA = String(a['Customer Name'] || '').toLowerCase().trim();
+        const nameB = String(b['Customer Name'] || '').toLowerCase().trim();
+        const nameCmp = nameA.localeCompare(nameB, 'en', { sensitivity: 'base' });
+        if (nameCmp !== 0) return nameCmp;
+
+        // Secondary: Invoice No A→Z (keeps same customer's invoices together in order)
+        const invA = String(a['Invoice No.'] || '').toLowerCase();
+        const invB = String(b['Invoice No.'] || '').toLowerCase();
+        return invA.localeCompare(invB, 'en', { sensitivity: 'base' });
     });
 }
 
@@ -858,14 +922,13 @@ function renderToday(records) {
     const sortedToday   = _sortTodayRecords(todayRecs);
     const sortedPending = _sortTodayRecords(pendingRecs);
 
-    // Update badges
     document.getElementById('badge-today').textContent = sortedToday.length;
     document.getElementById('today-count-badge').textContent = sortedToday.length;
     document.getElementById('pending-count-badge').textContent = sortedPending.length;
 
     const filtered = AppState.todayFilter === 'pending' ? sortedPending : sortedToday;
 
-    // Summary chips
+    // Summary chips — show priority breakdown but don't use for sorting
     const counts = { Critical:0, High:0, Medium:0, Normal:0, Reminder:0 };
     filtered.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
     const chipColors = { Critical:'var(--red)', High:'var(--orange)', Medium:'var(--yellow)', Normal:'var(--green)', Reminder:'var(--blue)' };
@@ -881,13 +944,13 @@ function renderToday(records) {
     container.innerHTML = filtered.map(r => _buildCallCardHTML(r)).join('');
 }
 
-// Build a single call card HTML — extracted so we can also use it for in-place update
+// FIX 2: Removed "📞 Call" button from call-actions
+// Phone number tap-to-call link still present in info row
 function _buildCallCardHTML(r) {
     const icons   = { Critical:'🚨', High:'⚠️', Medium:'📌', Normal:'📞', Reminder:'🔔' };
     const iconBg  = { Critical:'var(--red-bg)', High:'var(--orange-bg)', Medium:'var(--yellow-bg)', Normal:'var(--green-bg)', Reminder:'var(--blue-light)' };
     const prio    = r.priority || 'Normal';
 
-    // Session call count badge (how many times called today in this session)
     const callCount = AppState.sessionCallCounts[r['Invoice No.']] || 0;
     const callBadge = callCount > 0
         ? `<span class="call-count-badge">✅ Called ${callCount}x</span>`
@@ -928,70 +991,55 @@ function _buildCallCardHTML(r) {
         ${hasRemark?`<div style="margin-top:10px;padding:10px;background:#F8FAFC;border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Last Conversation</div><div style="font-size:13px;color:var(--text-secondary)">💬 ${r['Last Remarks']}</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px">📅 ${r['Last Call Date']||'—'}</div></div>`:''}
       </div>
       <div class="call-actions" style="margin-left:16px">
-        <a href="tel:${r['Dealer Ph. No.']}" class="btn btn-outline btn-sm" style="justify-content:center;color:var(--blue);border-color:var(--blue)">📞 Call</a>
+        <!-- FIX 2: Only Log Call button — 📞 Call button removed -->
         <button class="btn btn-primary btn-sm" onclick="openCallModal('${esc(r['Dealer Code'])}','${esc(r['Customer Name'])}','${esc(r['Location']||'')}','${esc(r['Invoice No.'])}',${r['Balance']})">✍️ Log Call</button>
       </div>
     </div>`;
 }
 
 // ══════════════════════════════════════════════════════
-// IN-PLACE CARD UPDATE (FIX 1: no scroll jump)
-// Called after a successful logCall when on today/pending page
-// Updates the specific card's remarks + balance + call count
-// Also moves card between tabs if follow-up date changed
+// IN-PLACE CARD UPDATE
 // ══════════════════════════════════════════════════════
 function _updateCardInPlace(invoiceNo, payload) {
     const newFupStr = _parseDateToStr(payload.followUpDate);
     const amtPaid   = parseFloat(payload.amountReceived) || 0;
     const adjPaid   = parseFloat(payload.adjustment) || 0;
 
-    // Update AppData.today in memory
     if (AppData.today) {
         const rec = AppData.today.find(r => r['Invoice No.'] === invoiceNo);
         if (rec) {
-            // Update balance
             rec['Balance'] = Math.max(0, (rec['Balance'] || 0) - amtPaid - adjPaid);
-            // Update follow-up
             if (payload.followUpDate) rec['Next Follow-up'] = payload.followUpDate;
-            // Update last remarks
             rec['Last Remarks'] = payload.remarks;
             rec['Last Call Date'] = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
         }
     }
 
-    // Decide if card should stay in current tab or move
-    // After update: re-categorize
     if (!AppData.today) return;
     const { todayRecs, pendingRecs } = _categorizeTodayRecords(AppData.today);
     const sortedToday   = _sortTodayRecords(todayRecs);
     const sortedPending = _sortTodayRecords(pendingRecs);
 
-    // Update badges
     document.getElementById('badge-today').textContent       = sortedToday.length;
     document.getElementById('today-count-badge').textContent = sortedToday.length;
     document.getElementById('pending-count-badge').textContent = sortedPending.length;
 
     const currentFiltered = AppState.todayFilter === 'pending' ? sortedPending : sortedToday;
-
-    // Check if the invoice is still in current tab view
     const stillInTab = currentFiltered.some(r => r['Invoice No.'] === invoiceNo);
 
     if (stillInTab) {
-        // Just flash + update the specific card in place
         const cardEl = document.querySelector(`.call-card[data-inv="${CSS.escape(invoiceNo)}"]`);
         if (cardEl) {
             const rec = AppData.today.find(r => r['Invoice No.'] === invoiceNo);
             if (rec) {
-                const newHTML = _buildCallCardHTML(rec);
                 const temp = document.createElement('div');
-                temp.innerHTML = newHTML;
+                temp.innerHTML = _buildCallCardHTML(rec);
                 const newCard = temp.firstElementChild;
                 newCard.classList.add('flash-update');
                 cardEl.replaceWith(newCard);
             }
         }
     } else {
-        // Card moved to the other tab — remove it from current view with animation
         const cardEl = document.querySelector(`.call-card[data-inv="${CSS.escape(invoiceNo)}"]`);
         if (cardEl) {
             cardEl.style.transition = 'opacity 0.3s, transform 0.3s';
@@ -999,17 +1047,9 @@ function _updateCardInPlace(invoiceNo, payload) {
             cardEl.style.transform = 'translateX(20px)';
             setTimeout(() => {
                 cardEl.remove();
-                // Update chips
-                const remaining = currentFiltered.filter(r => r['Invoice No.'] !== invoiceNo);
-                const counts = { Critical:0, High:0, Medium:0, Normal:0, Reminder:0 };
-                remaining.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
-                const chipColors = { Critical:'var(--red)', High:'var(--orange)', Medium:'var(--yellow)', Normal:'var(--green)', Reminder:'var(--blue)' };
-                document.getElementById('today-chips').innerHTML = Object.entries(counts).filter(([,c]) => c > 0)
-                    .map(([p,c]) => `<div class="s-chip"><div class="s-dot" style="background:${chipColors[p]}"></div><span class="lbl">${p}</span><span class="val">${c}</span></div>`).join('');
+                _updateChips(currentFiltered);
             }, 320);
         }
-
-        // Show a toast hint
         if (newFupStr === _todayStr) {
             toast('Record aaj ke Today Calling mein move ho gaya ✅', 'info');
         } else if (!newFupStr || newFupStr < _todayStr) {
@@ -1017,9 +1057,12 @@ function _updateCardInPlace(invoiceNo, payload) {
         }
     }
 
-    // Update summary chips for remaining items
+    _updateChips(currentFiltered);
+}
+
+function _updateChips(records) {
     const counts = { Critical:0, High:0, Medium:0, Normal:0, Reminder:0 };
-    currentFiltered.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
+    records.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
     const chipColors = { Critical:'var(--red)', High:'var(--orange)', Medium:'var(--yellow)', Normal:'var(--green)', Reminder:'var(--blue)' };
     document.getElementById('today-chips').innerHTML = Object.entries(counts).filter(([,c]) => c > 0)
         .map(([p,c]) => `<div class="s-chip"><div class="s-dot" style="background:${chipColors[p]}"></div><span class="lbl">${p}</span><span class="val">${c}</span></div>`).join('');
@@ -1451,6 +1494,7 @@ async function submitAddInvoice() {
     if (AppState.currentPage === 'active') loadActive(true);
 }
 
+// FIX 3: Follow-up date always resets to today's date every time modal opens
 function openCallModal(dc, name, loc, inv, bal) {
     document.getElementById('c-name').textContent = name;
     document.getElementById('c-inv').textContent = inv;
@@ -1461,6 +1505,8 @@ function openCallModal(dc, name, loc, inv, bal) {
     document.getElementById('c-rmk').value = '';
     document.getElementById('c-adj').value = '';
     document.getElementById('c-adjr').value = '';
+    // FIX 3: Always set follow-up date to today — never carry over previous value
+    document.getElementById('c-fup').value = _todayStr;
     // Reset submit button state
     const btn = document.getElementById('btn-save-call');
     btn.disabled = false;
@@ -1470,6 +1516,7 @@ function openCallModal(dc, name, loc, inv, bal) {
     openModal('modal-call');
 }
 
+// FIX 5: Modal closes INSTANTLY on click, API runs in background
 async function submitLogCall() {
     const m = document.getElementById('modal-call');
     const invoiceNo = m.dataset.inv;
@@ -1488,6 +1535,7 @@ async function submitLogCall() {
     const amt = parseFloat(p.amountReceived) || 0;
     const adj = parseFloat(p.adjustment) || 0;
 
+    // Validate BEFORE closing modal (so user can correct errors)
     if (amt + adj > bal) {
         toast(`Total (₹${amt+adj}) balance (₹${bal}) se zyada nahi ho sakta`, 'error');
         return;
@@ -1497,40 +1545,22 @@ async function submitLogCall() {
         return;
     }
 
-    // ── Spinner on submit button ──────────────────────────────
-    const btn = document.getElementById('btn-save-call');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="btn-spinner"></span> Saving...';
+    // FIX 5: Close modal INSTANTLY — no waiting for API
+    closeModal('modal-call');
 
-    const res = await api('logCall', p);
-
-    // Reset button regardless
-    btn.disabled = false;
-    btn.innerHTML = 'Save Call Log';
-
-    if (!res) return;
-
-    // ── Update session call count for this invoice ────────────
+    // Increment session call count immediately (optimistic)
     AppState.sessionCallCounts[invoiceNo] = (AppState.sessionCallCounts[invoiceNo] || 0) + 1;
 
-    // Invalidate caches that need server refresh
+    // Optimistic local update
     AppData.dashboard = null;
     AppData.activeAll = null;
     AppData.history   = null;
     AppData.analysis  = null;
-    // NOTE: We do NOT clear AppData.today — we update it in memory below
 
-    toast(res.message || 'Call logged ✅', 'success');
-    closeModal('modal-call');
-
-    // ══════════════════════════════════════════════════
-    // FIX 1: In-place update — NO full page reload
-    // Scroll position is completely preserved
-    // ══════════════════════════════════════════════════
+    // Update UI immediately (in-place, no scroll jump)
     if (AppState.currentPage === 'today' && AppData.today) {
         _updateCardInPlace(invoiceNo, p);
     } else if (AppState.currentPage === 'active') {
-        // Active page: just update balance in local data, re-render
         if (AppData.activeAll) {
             const rec = AppData.activeAll.find(r => r['Invoice No.'] === invoiceNo);
             if (rec) {
@@ -1539,10 +1569,23 @@ async function submitLogCall() {
             }
             applyActiveFilter();
         }
-    } else if (AppState.currentPage === 'dashboard') {
-        loadDashboard(true);
-    } else if (AppState.currentPage === 'history') {
-        loadHistory(true);
+    }
+
+    // Show immediate feedback toast
+    toast('📤 Saving call log...', 'info');
+
+    // API call runs in background — silent (no progress bar blocking UI)
+    const res = await api('logCall', p, undefined, true);
+
+    if (res) {
+        toast('✅ Call logged successfully!', 'success');
+        // Refresh dashboard silently in background
+        if (AppState.currentPage === 'dashboard') loadDashboard(true);
+        else if (AppState.currentPage === 'history') loadHistory(true);
+    } else {
+        // If API failed, revert optimistic session count
+        AppState.sessionCallCounts[invoiceNo] = Math.max(0, (AppState.sessionCallCounts[invoiceNo] || 1) - 1);
+        toast('⚠️ Save failed — please try again', 'error');
     }
 }
 

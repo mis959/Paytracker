@@ -251,6 +251,76 @@
         .spinner { width: 38px; height: 38px; border: 3px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin .75s linear infinite; }
         .loader-txt { font-size: 13px; color: var(--text-muted); font-weight: 500; }
         @keyframes spin { to { transform: rotate(360deg); } }
+
+        
+        /* Buttons Container */
+            .top-buttons {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            /* Common Link Button Base */
+            .link-btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 9px 18px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+                cursor: pointer;
+                transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+                white-space: nowrap;
+                border: none;
+                letter-spacing: 0.01em;
+            }
+            
+            /* Scheme DB — Blue (matching Add Invoice) */
+            .link-btn:nth-child(1) {
+                background: #2563EB;
+                color: #fff;
+                box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+            }
+            
+            .link-btn:nth-child(1):hover {
+                background: #1D4ED8;
+                box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+                transform: translateY(-1px);
+            }
+            
+            /* Pr Order DB — Dark Slate */
+            .secondary-btn {
+                background: linear-gradient(135deg, #0f172a, #1e3a5f);
+                color: #fff;
+                box-shadow: 0 2px 8px rgba(15, 23, 42, 0.3);
+            }
+            
+            .secondary-btn:hover {
+                background: linear-gradient(135deg, #1e293b, #1e40af);
+                box-shadow: 0 6px 16px rgba(15, 23, 42, 0.4);
+                transform: translateY(-1px);
+            }
+            
+            /* Active (click) */
+            .link-btn:active {
+                transform: scale(0.97);
+                box-shadow: none;
+            }
+            
+            /* Responsive */
+            @media (max-width: 768px) {
+                .top-buttons {
+                    width: 100%;
+                    flex-wrap: wrap;
+                }
+            
+                .link-btn {
+                    width: 100%;
+                    text-align: center;
+                }
+            }
     </style>
 </head>
 <body>
@@ -298,6 +368,21 @@
         <span class="topbar-title" id="page-title">Dashboard</span>
         <div class="topbar-sep"></div>
         <span class="topbar-sub" id="page-sub">Payment overview & analytics</span>
+        <div class="top-buttons">
+                  
+                  <a href="https://script.google.com/macros/s/AKfycbz_wZj7FzOGjIMBDbshqwFkP49KO3SYmko9f2iSnA6ylMac5qas1gUm5EqsYTPb2gs8SQ/exec"
+                    target="_blank"
+                    class="link-btn secondary-btn">
+                    Scheme DB
+                  </a>
+
+                  <a href="https://script.google.com/a/macros/tarunpaint.com/s/AKfycbxneNpBfFaHAM8uAKJZ4ZPoNAZw3yO1ep1877PZf38fnkK-MivxQNNMgpu73sGrt12O/exec"
+                    target="_blank"
+                    class="link-btn secondary-btn">
+                    Pr Order DB
+                  </a>
+
+              </div>
         <div class="topbar-right">
             <div class="search-wrap">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>

@@ -558,7 +558,7 @@
                     <button class="btn btn-ghost btn-sm" onclick="loadActive(true)" style="margin-left:8px">↺</button>
                 </div>
                 <div class="tbl-wrap"><table>
-                    <thead><tr><th>#</th><th>Customer</th><th>Phone No.</th><th>Invoice</th><th>Dealer Type</th><th>Sales Person</th><th>Invoice Amt</th><th>Balance</th><th>Dispatch</th><th>Due Date</th><th>Due Days</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead>
+                    <thead><tr><th>#</th><th>Customer</th><th>Phone No.</th><th>Invoice</th><th>Dealer Type</th><th>Sales Person</th><th>Location</th><th>Invoice Amt</th><th>Balance</th><th>Dispatch</th><th>Due Date</th><th>Due Days</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody id="tbl-active"></tbody>
                 </table></div>
                 <div class="pagination" id="active-pagination"></div>
@@ -1237,7 +1237,7 @@ function _updateChips(records) {
 // ══════════════════════════════════════════════════════
 async function loadActive(force) {
     if (!force && AppData.activeAll) { applyActiveFilter(); return; }
-    document.getElementById('tbl-active').innerHTML = Array(6).fill('<tr><td colspan="14"><div class="sk sk-row"></div></td></tr>').join('');
+    document.getElementById('tbl-active').innerHTML = Array(6).fill('<tr><td colspan="15"><div class="sk sk-row"></div></td></tr>').join('');
     const res = await api('getActivePayments', { page: 1, pageSize: 500 });
     if (!res) return;
     AppData.activeAll = res.data;
@@ -1272,7 +1272,7 @@ function renderActiveRows(pageData, pagination, allFiltered) {
     const start = (pagination.page - 1) * pagination.pageSize;
     const tbody = document.getElementById('tbl-active');
     if (!pageData.length) {
-        tbody.innerHTML = `<tr><td colspan="14"><div class="empty-state"><span class="icon">✅</span><p>Koi record nahi</p></div></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="15"><div class="empty-state"><span class="icon">✅</span><p>Koi record nahi</p></div></td></tr>`;
         document.getElementById('active-pagination').innerHTML = '';
         return;
     }
@@ -1285,6 +1285,7 @@ function renderActiveRows(pageData, pagination, allFiltered) {
       <td><span class="mono">${r['Invoice No.']}</span></td>
       <td><span class="badge badge-reminder" style="font-size:11px">${r['Dealer Type']||'—'}</span></td>
       <td style="font-size:12px">${r['Sales Person']||'—'}</td>
+      <td style="font-size:12px">${r['Location']||'—'}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${fmt(r['Invoice Amount'])}</td>
       <td style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:${paid?'var(--green)':'var(--red)'}">${fmt(r['Balance'])}</td>
       <td style="font-size:12px">${r['Dispatch Date']||'—'}</td>

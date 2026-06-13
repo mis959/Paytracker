@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
         <style>
         /* ══════════════════════════════════════════════
-           PREMIUM SLATE-INK DESIGN SYSTEM v12.1
+           PREMIUM SLATE-INK DESIGN SYSTEM v12.2
            Palette: Deep Ink sidebar · Cool Slate canvas
            Accents: Indigo primary · Jewel-tone semantics
            ══════════════════════════════════════════════ */
@@ -68,6 +68,72 @@
         html { font-size: 14px; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text-primary); min-height: 100vh; -webkit-font-smoothing: antialiased; }
 
+        /* ── LOGIN SCREEN ────────────────────────────── */
+        #login-screen {
+            position: fixed; inset: 0;
+            background: var(--navy);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 99999; flex-direction: column; gap: 0;
+        }
+        #login-screen::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image: radial-gradient(circle, rgba(255,255,255,.025) 1px, transparent 1px);
+            background-size: 22px 22px;
+            pointer-events: none;
+        }
+        #login-screen::after {
+            content: '';
+            position: absolute; top: 20%; left: 50%;
+            transform: translateX(-50%);
+            width: 400px; height: 300px;
+            background: radial-gradient(ellipse, rgba(67,97,238,.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .login-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            width: 400px; max-width: 92vw;
+            box-shadow: 0 24px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,.06);
+            overflow: hidden;
+            position: relative; z-index: 1;
+            animation: loginCardIn .4s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes loginCardIn {
+            from { opacity: 0; transform: translateY(20px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0)    scale(1);   }
+        }
+        .login-header {
+            background: linear-gradient(135deg, #0D1117, #1a2744);
+            padding: 30px 32px 26px; text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+        .login-brand-mark {
+            width: 52px; height: 52px;
+            background: linear-gradient(140deg, #5577F8, #3A54DC);
+            border-radius: var(--radius-lg);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-bottom: 12px;
+            box-shadow: 0 6px 20px rgba(67,97,238,.45), 0 0 0 1px rgba(255,255,255,.1);
+        }
+        .login-header h1 { font-size: 22px; font-weight: 800; color: #F0F4FF; letter-spacing: -.3px; }
+        .login-header p  { font-size: 12px; color: rgba(255,255,255,.3); margin-top: 3px; }
+        .login-body { padding: 28px 32px; }
+        .login-body .field { margin-bottom: 16px; }
+        .login-error {
+            display: none;
+            background: var(--red-bg); color: var(--red);
+            border: 1px solid #f5c6c6; border-radius: var(--radius-sm);
+            padding: 10px 14px; font-size: 13px;
+            margin-bottom: 16px; font-weight: 600;
+            animation: loginCardIn .2s ease;
+        }
+        .login-footer-txt {
+            margin-top: 16px; font-size: 11px;
+            color: rgba(255,255,255,.18); text-align: center;
+            position: relative; z-index: 1;
+        }
+
         /* ── SIDEBAR ─────────────────────────────────── */
         .sidebar {
             position: fixed; top: 0; left: 0; bottom: 0;
@@ -77,7 +143,6 @@
             z-index: 200; overflow: hidden;
             border-right: 1px solid rgba(255,255,255,.04);
         }
-        /* Fine dot-grid texture */
         .sidebar::before {
             content: '';
             position: absolute; inset: 0;
@@ -85,7 +150,6 @@
             background-size: 20px 20px;
             pointer-events: none;
         }
-        /* Soft indigo glow at top */
         .sidebar::after {
             content: '';
             position: absolute; top: -60px; left: 50%;
@@ -113,6 +177,34 @@
             border-radius: 20px; padding: 4px 10px;
             font-size: 11px; color: rgba(255,255,255,.38);
         }
+
+        /* ── USER BADGE in sidebar ───────────────────── */
+        .user-badge {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: var(--radius-sm);
+            margin: 0 10px 8px;
+            position: relative; z-index: 1;
+        }
+        .user-avatar {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: linear-gradient(135deg, #4361EE, #7C5FCC);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+        }
+        .user-info { flex: 1; min-width: 0; }
+        .user-name { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-email { font-size: 10px; color: rgba(255,255,255,.30); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .logout-btn {
+            background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.10);
+            border-radius: 6px; padding: 3px 8px;
+            color: rgba(255,255,255,.40); font-size: 11px;
+            cursor: pointer; font-family: inherit; transition: all .15s;
+            white-space: nowrap;
+        }
+        .logout-btn:hover { background: rgba(198,40,40,.25); color: #ff8a8a; border-color: rgba(198,40,40,.4); }
 
         nav { flex: 1; padding: 14px 10px; overflow-y: auto; position: relative; z-index: 1; }
         nav::-webkit-scrollbar { width: 0; }
@@ -197,6 +289,10 @@
         .progress-bar-wrap.show { opacity: 1; }
         .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--blue), #8BA4FF); transition: width .4s cubic-bezier(.4,0,.2,1); }
 
+        /* SWR refresh pulse — subtle border glow when background update is running */
+        @keyframes swrPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+        .swr-refreshing { animation: swrPulse 1.2s ease infinite; }
+
         .sk { background: linear-gradient(90deg, #EBEff5 25%, #DDE3EC 50%, #EBEff5 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
         .sk-text { height: 12px; width: 100%; margin: 8px 0; }
@@ -275,7 +371,7 @@
 
         /* ── PAGINATION ────────────────────────────── */
         .pagination { display: flex; align-items: center; gap: 6px; padding: 14px 20px; border-top: 1px solid var(--border); justify-content: center; flex-wrap: wrap; }
-        .pg-btn { padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--white); color: var(--text-secondary); transition: all .15s; }
+        .pg-btn { padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12.5px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--white); color: var(--text-secondary); transition: all .15px; }
         .pg-btn:hover:not(:disabled) { border-color: var(--blue); color: var(--blue); }
         .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .pg-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
@@ -319,6 +415,7 @@
         @keyframes toastIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         .cache-badge { font-size: 10px; background: var(--green-bg); color: var(--green); padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 6px; vertical-align: middle; }
+        .swr-badge   { font-size: 10px; background: var(--blue-light); color: var(--blue); padding: 2px 7px; border-radius: 10px; font-weight: 700; margin-left: 6px; vertical-align: middle; animation: swrPulse 1.2s ease infinite; }
 
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 56px 20px; color: var(--text-muted); gap: 10px; }
         .empty-state .icon { font-size: 36px; opacity: .35; }
@@ -384,6 +481,34 @@
 </head>
 <body>
 
+<div id="login-screen">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-brand-mark">💰</div>
+            <h1>PayTrack</h1>
+            <p>Tarun Paint Co. · Payment Management</p>
+        </div>
+        <div class="login-body">
+            <div class="field">
+                <label>Email Address</label>
+                <input type="email" id="login-email" placeholder="yourname@tarunpaint.com"
+                    onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" id="login-pass" placeholder="••••••••"
+                    onkeydown="if(event.key==='Enter')doLogin()">
+            </div>
+            <div class="login-error" id="login-error"></div>
+            <button class="btn btn-primary" id="login-btn"
+                onclick="doLogin()" style="width:100%;justify-content:center;padding:11px;margin-top:4px">
+                Sign In →
+            </button>
+        </div>
+    </div>
+    <div class="login-footer-txt">PayTrack v12.2 &nbsp;·&nbsp; © 2026 Tarun Paint Co.</div>
+</div>
+
 <div class="progress-bar-wrap" id="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
 
 <aside class="sidebar">
@@ -400,6 +525,9 @@
             <span id="today-date">Loading...</span>
         </div>
     </div>
+
+    <div id="user-badge-container"></div>
+
     <nav>
         <div class="nav-group-label">Overview</div>
         <button class="nav-btn active" data-page="dashboard" onclick="nav('dashboard')"><span class="nav-icon">⊞</span> Dashboard</button>
@@ -413,13 +541,9 @@
         <button class="nav-btn" onclick="openModal('modal-add')"><span class="nav-icon">＋</span> Add Invoice</button>
         <button class="nav-btn" onclick="hardRefresh()"><span class="nav-icon">🔄</span> Force Refresh</button>
     </nav>
-    <!-- FIX 1: Settings button in footer to re-enter API URL -->
     <div class="sidebar-footer">
-        <span class="sidebar-footer-txt">PayTrack v12.0 &nbsp;·&nbsp; © 2026</span>
-        <button class="settings-btn" onclick="openSettingsModal()" title="Change Web App URL">
-            ⚙️ Settings
-        </button>
-    </div>
+        <span class="sidebar-footer-txt">PayTrack v12.2 &nbsp;·&nbsp; © 2026</span>
+     </div>
 </aside>
 
 <div class="main">
@@ -428,20 +552,11 @@
         <div class="topbar-sep"></div>
         <span class="topbar-sub" id="page-sub">Payment overview & analytics</span>
         <div class="top-buttons">
-                  
-                  <a href="https://script.google.com/macros/s/AKfycbz_wZj7FzOGjIMBDbshqwFkP49KO3SYmko9f2iSnA6ylMac5qas1gUm5EqsYTPb2gs8SQ/exec"
-                    target="_blank"
-                    class="link-btn secondary-btn">
-                    Scheme DB
-                  </a>
-
-                  <a href="https://script.google.com/a/macros/tarunpaint.com/s/AKfycbxneNpBfFaHAM8uAKJZ4ZPoNAZw3yO1ep1877PZf38fnkK-MivxQNNMgpu73sGrt12O/exec"
-                    target="_blank"
-                    class="link-btn secondary-btn">
-                    Pr Order DB
-                  </a>
-
-              </div>
+            <a href="https://script.google.com/macros/s/AKfycbz_wZj7FzOGjIMBDbshqwFkP49KO3SYmko9f2iSnA6ylMac5qas1gUm5EqsYTPb2gs8SQ/exec"
+                target="_blank" class="link-btn secondary-btn">Scheme DB</a>
+            <a href="https://script.google.com/a/macros/tarunpaint.com/s/AKfycbxneNpBfFaHAM8uAKJZ4ZPoNAZw3yO1ep1877PZf38fnkK-MivxQNNMgpu73sGrt12O/exec"
+                target="_blank" class="link-btn secondary-btn">Pr Order DB</a>
+        </div>
         <div class="topbar-right">
             <div class="search-wrap">
                 <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -455,7 +570,7 @@
     </header>
 
     <div class="content">
-        <div class="config-banner" id="config-banner">
+        <div class="config-banner hidden" id="config-banner">
             <span style="font-size:20px">⚙️</span>
             <p><strong>Setup Required:</strong> Apps Script deploy karo (Execute as: Me, Access: Anyone), phir URL paste karo.</p>
             <input type="text" id="webapp-url-input" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec">
@@ -555,6 +670,7 @@
                 <div class="card-head">
                     <span class="card-title">Active Payments</span>
                     <span class="card-subtitle" id="active-count"></span>
+                    <span id="active-swr-badge"></span>
                     <button class="btn btn-ghost btn-sm" onclick="loadActive(true)" style="margin-left:8px">↺</button>
                 </div>
                 <div class="tbl-wrap"><table>
@@ -568,7 +684,11 @@
         <!-- CALL HISTORY -->
         <div class="page" id="page-history">
             <div class="card">
-                <div class="card-head"><span class="card-title">Call History</span><button class="btn btn-ghost btn-sm" onclick="loadHistory(true)" style="margin-left:auto">↺ Refresh</button></div>
+                <div class="card-head">
+                    <span class="card-title">Call History</span>
+                    <span id="history-swr-badge"></span>
+                    <button class="btn btn-ghost btn-sm" onclick="loadHistory(true)" style="margin-left:auto">↺ Refresh</button>
+                </div>
                 <div class="tbl-wrap"><table>
                     <thead><tr><th>#</th><th>Date & Time</th><th>Customer</th><th>Invoice</th><th>Amount Recd.</th><th>Scheduled For</th><th>Next Follow-up</th><th>Remarks</th><th>ADJ.</th><th>ADJ. Remarks</th></tr></thead>
                     <tbody id="tbl-history"></tbody>
@@ -596,6 +716,7 @@
                 <div class="card-head">
                     <span class="card-title">Archived Payments</span>
                     <span class="card-subtitle" id="archive-count">Historical paid records</span>
+                    <span id="archived-swr-badge"></span>
                     <button class="btn btn-primary btn-sm" onclick="runArchiveNow()" style="margin-left:auto;background:var(--green)">📦 Archive Paid Now</button>
                 </div>
                 <div class="tbl-wrap"><table>
@@ -643,7 +764,6 @@
             <input type="hidden" id="c-dc">
             <div class="form-grid">
                 <div class="field"><label>Amount Received (₹)</label><input id="c-amt" type="number" placeholder="0 if no payment today"></div>
-                <!-- FIX 3: Follow-up date always set to today in openCallModal() -->
                 <div class="field"><label>Follow-up Date</label><input id="c-fup" type="date" required></div>
                 <div class="field full"><label>Customer Response / Remarks *</label><textarea id="c-rmk" placeholder="What did customer say?"></textarea></div>
                 <div class="field"><label>Adjustment (₹)</label><input id="c-adj" type="number" placeholder="0"></div>
@@ -676,7 +796,6 @@
     </div>
 </div>
 
-
 <!-- INVOICE REMARKS MODAL -->
 <div class="modal-bg" id="modal-remarks">
     <div class="modal modal-wide">
@@ -696,7 +815,7 @@
     </div>
 </div>
 
-<!-- FIX 1: Settings / Change API URL Modal -->
+<!-- SETTINGS MODAL -->
 <div class="modal-bg" id="modal-settings">
     <div class="modal" style="width:500px">
         <div class="modal-hd">
@@ -728,49 +847,164 @@
 
 <script>
 // ══════════════════════════════════════════════════════
-// PAYTRACK v12.1
-//
-// CHANGES from v12.0:
-// FIX 1 — Re-enter API URL: Settings button in sidebar footer
-//          openSettingsModal() shows current URL & allows change
-// FIX 2 — Today Calling: 📞 Call button REMOVED from call-actions
-//          Phone number tap-to-call link still present in info area
-// FIX 3 — Follow-up date: Always resets to TODAY in openCallModal()
-//          Not the previously selected value
-// FIX 4 — A-Z sort: Primary sort = Customer Name A→Z
-//          Secondary = Invoice No. (same customer = same spot, together)
-//          Priority sort removed as primary key
-// FIX 5 — Instant modal close: closeModal() fires IMMEDIATELY on save
-//          API call happens in background async, UI updates via toast
+// PAYTRACK v12.2 — SWR + Fast Remarks Index
+// Changes from v12.1:
+//   • Stale-While-Revalidate (SWR) on all pages
+//     → Cache dikhao INSTANTLY, background mein refresh
+//   • AppIndex (Map-based) — O(1) invoice/dealer history lookup
+//     → Remarks modal ab instant open hoga
+//   • _preloadHistory() — Active page load ke saath silently
+//     history preload hoti hai so first remarks click is also fast
+//   • submitLogCall — history cache ko preserve & update karta hai
+//     instead of nulling it (no re-fetch needed)
 // ══════════════════════════════════════════════════════
 
-let WEBAPP_URL = localStorage.getItem('paytrack_webapp_url') || '';
+let WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw4WKLk2pyHLEqLIwM8qmg5E-ZXFYWvx94Br7SVWt7YDjWPhYs7Ij9n4anMLMsoxGI3/exec';
 
+// ══════════════════════════════════════════════════════
+// SESSION MANAGEMENT
+// ══════════════════════════════════════════════════════
+let _currentUser = null;
+
+function _checkSession() {
+    const saved = sessionStorage.getItem('pt_user');
+    if (saved) {
+        try { _currentUser = JSON.parse(saved); return true; }
+        catch (e) { sessionStorage.removeItem('pt_user'); }
+    }
+    return false;
+}
+function _saveSession(user)  { _currentUser = user; sessionStorage.setItem('pt_user', JSON.stringify(user)); }
+function _clearSession()     { _currentUser = null; sessionStorage.removeItem('pt_user'); }
+
+function _renderUserBadge(user) {
+    const container = document.getElementById('user-badge-container');
+    if (!container) return;
+    const initials = (user.name || user.email).charAt(0).toUpperCase();
+    container.innerHTML = `
+        <div class="user-badge">
+            <div class="user-avatar">${initials}</div>
+            <div class="user-info">
+                <div class="user-name">${user.name || user.email}</div>
+                <div class="user-email">${user.email}</div>
+            </div>
+            <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        </div>`;
+}
+
+function logoutUser() {
+    if (!confirm('Logout karna chahte ho?')) return;
+    _clearSession();
+    location.reload();
+}
+
+// ── LOGIN ──────────────────────────────────────────────
+async function doLogin() {
+    const emailEl = document.getElementById('login-email');
+    const passEl  = document.getElementById('login-pass');
+    const errEl   = document.getElementById('login-error');
+    const btn     = document.getElementById('login-btn');
+    const email   = emailEl.value.trim();
+    const pass    = passEl.value.trim();
+    errEl.style.display = 'none';
+    if (!email || !pass) {
+        errEl.textContent = '⚠️ Email aur password dono required hain';
+        errEl.style.display = 'block'; return;
+    }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span> Verifying...';
+    try {
+        const res = await fetch(WEBAPP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'loginUser', payload: { email, password: pass } }),
+            redirect: 'follow'
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const text = await res.text();
+        const data = JSON.parse(text.replace(/^\uFEFF/, '').trim());
+        if (data.success) {
+            _saveSession(data.user);
+            document.getElementById('login-screen').style.display = 'none';
+            _renderUserBadge(data.user);
+            toast('Welcome, ' + data.user.name + '! 👋', 'success');
+            loadDashboard();
+        } else {
+            errEl.textContent = '❌ ' + (data.message || 'Wrong credentials');
+            errEl.style.display = 'block';
+            passEl.value = '';
+            passEl.focus();
+        }
+    } catch (e) {
+        errEl.textContent = '🌐 Network error — WEBAPP_URL check karo (' + e.message + ')';
+        errEl.style.display = 'block';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Sign In →';
+    }
+}
+
+// ══════════════════════════════════════════════════════
+// APP DATA — PAGE CACHE
+// ══════════════════════════════════════════════════════
 const AppData = {
-    dashboard: null,
-    today: null,
-    active: null,
-    activeAll: null,
-    history: null,
-    analysis: null,
-    archived: null,
+    dashboard: null, today: null, active: null,
+    activeAll: null, history: null, analysis: null, archived: null,
 };
 
+// ══════════════════════════════════════════════════════
+// APP INDEX — O(1) HISTORY LOOKUP
+// Invoice ya dealer ke liye full history scan karne ki
+// zaroorat nahi — Map se seedha milega
+// ══════════════════════════════════════════════════════
+const AppIndex = {
+    invoiceHistory: null,  // Map<invoiceNo, records[]>
+    dealerHistory:  null,  // Map<dealerCode, records[]>
+    built: false,
+};
+
+function _buildHistoryIndex(records) {
+    AppIndex.invoiceHistory = new Map();
+    AppIndex.dealerHistory  = new Map();
+    for (const h of records) {
+        const inv = (h['Invoice No.'] || '').trim();
+        const dc  = (h['Dealer Code']  || '').trim();
+        if (inv) {
+            if (!AppIndex.invoiceHistory.has(inv)) AppIndex.invoiceHistory.set(inv, []);
+            AppIndex.invoiceHistory.get(inv).push(h);
+        }
+        if (dc) {
+            if (!AppIndex.dealerHistory.has(dc)) AppIndex.dealerHistory.set(dc, []);
+            AppIndex.dealerHistory.get(dc).push(h);
+        }
+    }
+    AppIndex.built = true;
+}
+
+// New call entry ko index mein add karo (full re-fetch ki zaroorat nahi)
+function _indexNewCallEntry(entry) {
+    if (!AppIndex.built) return;
+    const inv = (entry['Invoice No.'] || '').trim();
+    const dc  = (entry['Dealer Code']  || '').trim();
+    if (inv) {
+        if (!AppIndex.invoiceHistory.has(inv)) AppIndex.invoiceHistory.set(inv, []);
+        AppIndex.invoiceHistory.get(inv).unshift(entry); // Latest first
+    }
+    if (dc) {
+        if (!AppIndex.dealerHistory.has(dc)) AppIndex.dealerHistory.set(dc, []);
+        AppIndex.dealerHistory.get(dc).unshift(entry);
+    }
+}
+
 const AppState = {
-    currentPage: 'dashboard',
-    activeFilter: 'all',
-    activePage: 1,
-    historyPage: 1,
-    archivedPage: 1,
-    todayFilter: 'today',
-    searchTimer: null,
-    sessionCallCounts: {},
-    lastCallMap: {},
+    currentPage: 'dashboard', activeFilter: 'all',
+    activePage: 1, historyPage: 1, archivedPage: 1,
+    todayFilter: 'today', searchTimer: null,
+    sessionCallCounts: {}, lastCallMap: {},
 };
 
 const PAGE_SIZE = { active: 100, history: 50, archived: 100 };
 
-// ── Today's date string (YYYY-MM-DD, local) ───────────────────────
 const _todayStr = (() => {
     const d = new Date();
     return d.getFullYear() + '-' +
@@ -785,15 +1019,17 @@ function saveWebAppUrl() {
     WEBAPP_URL = val;
     localStorage.setItem('paytrack_webapp_url', val);
     document.getElementById('config-banner').classList.add('hidden');
-    toast('URL saved! Dashboard load ho raha hai...', 'success');
-    loadDashboard(true);
+    toast('URL saved! Ab login karo...', 'success');
+    setTimeout(() => {
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('login-email').focus();
+    }, 600);
 }
 
-// FIX 1: Settings modal functions
 function openSettingsModal() {
-    const input = document.getElementById('settings-url-input');
+    const input   = document.getElementById('settings-url-input');
     const current = document.getElementById('settings-current-url');
-    input.value = WEBAPP_URL || '';
+    input.value   = WEBAPP_URL || '';
     current.textContent = 'Current: ' + (WEBAPP_URL || 'Not set');
     openModal('modal-settings');
     setTimeout(() => input.focus(), 200);
@@ -802,8 +1038,7 @@ function openSettingsModal() {
 function saveSettingsUrl() {
     const val = document.getElementById('settings-url-input').value.trim();
     if (!val || !val.startsWith('https://')) {
-        toast('Valid https:// URL daalo (https:// se start hona chahiye)', 'error');
-        return;
+        toast('Valid https:// URL daalo (https:// se start hona chahiye)', 'error'); return;
     }
     const isChanged = val !== WEBAPP_URL;
     WEBAPP_URL = val;
@@ -811,9 +1046,8 @@ function saveSettingsUrl() {
     document.getElementById('config-banner').classList.add('hidden');
     closeModal('modal-settings');
     if (isChanged) {
-        // Clear all cached data when URL changes
-        AppData.dashboard = null; AppData.today = null; AppData.active = null;
-        AppData.activeAll = null; AppData.history = null; AppData.analysis = null; AppData.archived = null;
+        Object.keys(AppData).forEach(k => AppData[k] = null);
+        AppIndex.invoiceHistory = null; AppIndex.dealerHistory = null; AppIndex.built = false;
         toast('✅ URL saved! Reconnecting...', 'success');
         setTimeout(() => loadDashboard(true), 300);
     } else {
@@ -826,17 +1060,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const now = new Date();
     document.getElementById('today-date').textContent =
         now.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-
-    // Set dispatch date for add invoice form
     document.getElementById('f-dd').value = now.toISOString().split('T')[0];
-    // NOTE: c-fup (follow-up date) is set in openCallModal() every time — FIX 3
-
-    if (WEBAPP_URL) {
-        document.getElementById('config-banner').classList.add('hidden');
-        loadDashboard();
-    } else {
-        document.getElementById('webapp-url-input').focus();
+    if (!WEBAPP_URL) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('config-banner').classList.remove('hidden');
+        return;
     }
+    if (_checkSession()) {
+        document.getElementById('login-screen').style.display = 'none';
+        _renderUserBadge(_currentUser);
+        loadDashboard();
+        return;
+    }
+    document.getElementById('login-email').focus();
 });
 
 // ══════════════════════════════════════════════════════
@@ -870,7 +1106,7 @@ async function api(action, payload, query, silent) {
     if (!silent) startProgress();
     const body = { action };
     if (payload !== undefined) body.payload = payload;
-    if (query !== undefined) body.query = query;
+    if (query   !== undefined) body.query   = query;
     try {
         const res = await fetch(WEBAPP_URL, {
             method: 'POST',
@@ -895,6 +1131,20 @@ async function api(action, payload, query, silent) {
 }
 
 // ══════════════════════════════════════════════════════
+// SWR BADGE HELPERS
+// Card header mein "↻ Refreshing" badge dikhao jab
+// background refresh chal raha ho
+// ══════════════════════════════════════════════════════
+function _showSwrBadge(id) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<span class="swr-badge">↻ Refreshing</span>';
+}
+function _hideSwrBadge(id) {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+}
+
+// ══════════════════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════════════════
 const PAGE_META = {
@@ -916,7 +1166,7 @@ function nav(page, force) {
     if (navBtn) navBtn.classList.add('active');
     const [title, sub] = PAGE_META[page] || [page, ''];
     document.getElementById('page-title').textContent = title;
-    document.getElementById('page-sub').textContent = sub;
+    document.getElementById('page-sub').textContent   = sub;
     AppState.currentPage = page;
     if (page === 'dashboard') loadDashboard(force);
     if (page === 'today')     loadToday(force);
@@ -927,36 +1177,51 @@ function nav(page, force) {
 }
 
 async function hardRefresh() {
-    AppData.dashboard = null; AppData.today = null; AppData.active = null;
-    AppData.activeAll = null; AppData.history = null; AppData.analysis = null; AppData.archived = null;
-    AppState.sessionCallCounts = {};
-    AppState.lastCallMap = {};
+    Object.keys(AppData).forEach(k => AppData[k] = null);
+    AppIndex.invoiceHistory = null; AppIndex.dealerHistory = null; AppIndex.built = false;
+    AppState.sessionCallCounts = {}; AppState.lastCallMap = {};
     await api('clearCache', null, null, true);
     toast('Cache cleared! Refreshing...', 'info');
     nav(AppState.currentPage, true);
 }
 
 // ══════════════════════════════════════════════════════
-// DASHBOARD
+// DASHBOARD — SWR
 // ══════════════════════════════════════════════════════
 async function loadDashboard(force) {
-    if (!force && AppData.dashboard) { renderDashboard(AppData.dashboard, true); return; }
+    if (!force && AppData.dashboard) {
+        renderDashboard(AppData.dashboard, true);
+        // Background refresh (silent, no progress bar)
+        _bgRefreshDashboard();
+        return;
+    }
     const res = await api('getDashboardData');
     if (!res) return;
     AppData.dashboard = res.data;
     renderDashboard(res.data, res.fromCache);
-    if (!AppData.today) api('getTodayCalling', null, null, true).then(r => { if (r) AppData.today = r.data; });
+    // Preload today's calling silently
+    if (!AppData.today) {
+        api('getTodayCalling', null, null, true).then(r => { if (r) AppData.today = r.data; });
+    }
+}
+
+async function _bgRefreshDashboard() {
+    const res = await api('getDashboardData', null, null, true);
+    if (res) {
+        AppData.dashboard = res.data;
+        if (AppState.currentPage === 'dashboard') renderDashboard(res.data, false);
+    }
 }
 
 function renderDashboard(d, fromCache) {
     document.getElementById('last-update-time').textContent = new Date().toLocaleTimeString();
     document.getElementById('cache-indicator').innerHTML = fromCache ? '<span class="cache-badge">⚡ Cached</span>' : '';
-    document.getElementById('s-total').textContent = fmt(d.totalOutstanding);
-    document.getElementById('s-overdue').textContent = fmt(d.overdue);
-    document.getElementById('s-soon').textContent = fmt(d.dueSoon);
-    document.getElementById('s-calls').textContent = d.todayCallCount;
-    document.getElementById('s-parties').textContent = d.activeParties || 0;
-    document.getElementById('s-records').textContent = `${d.totalRecords} pending invoices`;
+    document.getElementById('s-total').textContent    = fmt(d.totalOutstanding);
+    document.getElementById('s-overdue').textContent  = fmt(d.overdue);
+    document.getElementById('s-soon').textContent     = fmt(d.dueSoon);
+    document.getElementById('s-calls').textContent    = d.todayCallCount;
+    document.getElementById('s-parties').textContent  = d.activeParties || 0;
+    document.getElementById('s-records').textContent  = `${d.totalRecords} pending invoices`;
     document.getElementById('badge-today').textContent = d.todayCallCount;
     renderAging(d.agingBuckets, d.totalOutstanding);
     renderTopOverdue(d.topOverdue || []);
@@ -1002,16 +1267,12 @@ function _parseDateToStr(val) {
             const mo = months[m[2].toLowerCase()];
             if (mo !== undefined) {
                 const d = new Date(parseInt(m[3]), mo, parseInt(m[1]));
-                return d.getFullYear() + '-' +
-                       String(d.getMonth()+1).padStart(2,'0') + '-' +
-                       String(d.getDate()).padStart(2,'0');
+                return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
             }
         }
         const d = new Date(s.split(' ')[0]);
         if (!isNaN(d.getTime())) {
-            return d.getFullYear() + '-' +
-                   String(d.getMonth()+1).padStart(2,'0') + '-' +
-                   String(d.getDate()).padStart(2,'0');
+            return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
         }
         return null;
     } catch { return null; }
@@ -1021,44 +1282,26 @@ function _parseDateToStr(val) {
 // TODAY / PENDING CATEGORIZATION
 // ══════════════════════════════════════════════════════
 function _categorizeTodayRecords(records) {
-    const todayRecs   = [];
-    const pendingRecs = [];
-
+    const todayRecs = [], pendingRecs = [];
     for (const r of records) {
-        const fupStr = _parseDateToStr(r['Next Follow-up']);
-        const od = typeof r.overdueDays === 'number' ? r.overdueDays : (r.dueDays || 0);
-
+        const fupStr    = _parseDateToStr(r['Next Follow-up']);
+        const od        = typeof r.overdueDays === 'number' ? r.overdueDays : (r.dueDays || 0);
         const fupIsToday  = fupStr === _todayStr;
         const fupIsPast   = fupStr && fupStr < _todayStr;
         const fupIsFuture = fupStr && fupStr > _todayStr;
-
         if (fupIsFuture) continue;
-
-        if (fupIsToday || od === 0) {
-            todayRecs.push(r);
-            continue;
-        }
-
-        if (od > 0 || fupIsPast) {
-            pendingRecs.push(r);
-            continue;
-        }
+        if (fupIsToday || od === 0) { todayRecs.push(r); continue; }
+        if (od > 0 || fupIsPast)   { pendingRecs.push(r); continue; }
     }
-
     return { todayRecs, pendingRecs };
 }
 
-// FIX 4: Sort A-Z by Customer Name (PRIMARY), Invoice No (SECONDARY for same customer)
-// This ensures same customer's multiple invoices appear together, sorted naturally
 function _sortTodayRecords(records) {
     return records.slice().sort((a, b) => {
-        // Primary: Customer Name A→Z (case-insensitive)
         const nameA = String(a['Customer Name'] || '').toLowerCase().trim();
         const nameB = String(b['Customer Name'] || '').toLowerCase().trim();
         const nameCmp = nameA.localeCompare(nameB, 'en', { sensitivity: 'base' });
         if (nameCmp !== 0) return nameCmp;
-
-        // Secondary: Invoice No A→Z (keeps same customer's invoices together in order)
         const invA = String(a['Invoice No.'] || '').toLowerCase();
         const invB = String(b['Invoice No.'] || '').toLowerCase();
         return invA.localeCompare(invB, 'en', { sensitivity: 'base' });
@@ -1073,7 +1316,14 @@ function setTodayFilter(f, el) {
 }
 
 async function loadToday(force) {
-    if (!force && AppData.today) { renderToday(AppData.today); return; }
+    if (!force && AppData.today) {
+        renderToday(AppData.today);
+        // Background refresh
+        api('getTodayCalling', null, null, true).then(r => {
+            if (r) { AppData.today = r.data; if (AppState.currentPage === 'today') renderToday(r.data); }
+        });
+        return;
+    }
     document.getElementById('call-list-container').innerHTML = '<div class="card"><div class="card-body">' + Array(4).fill('<div class="sk sk-row" style="margin:6px 0"></div>').join('') + '</div></div>';
     const res = await api('getTodayCalling');
     if (!res) return;
@@ -1085,48 +1335,35 @@ function renderToday(records) {
     const { todayRecs, pendingRecs } = _categorizeTodayRecords(records);
     const sortedToday   = _sortTodayRecords(todayRecs);
     const sortedPending = _sortTodayRecords(pendingRecs);
-
-    document.getElementById('badge-today').textContent = sortedToday.length;
-    document.getElementById('today-count-badge').textContent = sortedToday.length;
+    document.getElementById('badge-today').textContent         = sortedToday.length;
+    document.getElementById('today-count-badge').textContent   = sortedToday.length;
     document.getElementById('pending-count-badge').textContent = sortedPending.length;
-
     const filtered = AppState.todayFilter === 'pending' ? sortedPending : sortedToday;
-
-    // Summary chips — show priority breakdown but don't use for sorting
     const counts = { Critical:0, High:0, Medium:0, Normal:0, Reminder:0 };
     filtered.forEach(r => { if (r.priority in counts) counts[r.priority]++; });
     const chipColors = { Critical:'var(--red)', High:'var(--orange)', Medium:'var(--yellow)', Normal:'var(--green)', Reminder:'var(--blue)' };
     document.getElementById('today-chips').innerHTML = Object.entries(counts).filter(([,c]) => c > 0)
         .map(([p,c]) => `<div class="s-chip"><div class="s-dot" style="background:${chipColors[p]}"></div><span class="lbl">${p}</span><span class="val">${c}</span></div>`).join('');
-
     const container = document.getElementById('call-list-container');
     if (!filtered.length) {
         container.innerHTML = `<div class="card"><div class="empty-state"><span class="icon">🎉</span><p>${AppState.todayFilter==='pending'?'No pending calls!':'No calls for today!'}</p></div></div>`;
         return;
     }
-
     container.innerHTML = filtered.map(r => _buildCallCardHTML(r)).join('');
 }
 
-// FIX 2: Removed "📞 Call" button from call-actions
-// Phone number tap-to-call link still present in info row
 function _buildCallCardHTML(r) {
-    const icons   = { Critical:'🚨', High:'⚠️', Medium:'📌', Normal:'📞', Reminder:'🔔' };
-    const iconBg  = { Critical:'var(--red-bg)', High:'var(--orange-bg)', Medium:'var(--yellow-bg)', Normal:'var(--green-bg)', Reminder:'var(--blue-light)' };
-    const prio    = r.priority || 'Normal';
-
+    const icons  = { Critical:'🚨', High:'⚠️', Medium:'📌', Normal:'📞', Reminder:'🔔' };
+    const iconBg = { Critical:'var(--red-bg)', High:'var(--orange-bg)', Medium:'var(--yellow-bg)', Normal:'var(--green-bg)', Reminder:'var(--blue-light)' };
+    const prio      = r.priority || 'Normal';
     const callCount = AppState.sessionCallCounts[r['Invoice No.']] || 0;
-    const callBadge = callCount > 0
-        ? `<span class="call-count-badge">✅ Called ${callCount}x</span>`
-        : '';
-
+    const callBadge = callCount > 0 ? `<span class="call-count-badge">✅ Called ${callCount}x</span>` : '';
     const hasRemark = r['Last Remarks'] && r['Last Remarks'] !== '-' && r['Last Remarks'] !== 'No Previous Call';
     const fupStr    = _parseDateToStr(r['Next Follow-up']);
     const fupLabel  = r['Next Follow-up']
         ? `<span style="color:${fupStr===_todayStr?'var(--blue)':'var(--text-muted)'}">📅 Follow-up: ${r['Next Follow-up']}</span>`
         : '';
     const od = typeof r.overdueDays === 'number' ? r.overdueDays : (r.dueDays || 0);
-
     return `<div class="call-card priority-${prio.toLowerCase()}" data-inv="${esc(r['Invoice No.'])}">
       <div class="call-avatar" style="background:${iconBg[prio]||'var(--bg)'}">${icons[prio]||'📞'}</div>
       <div class="call-info">
@@ -1134,8 +1371,7 @@ function _buildCallCardHTML(r) {
           <div style="font-size:14px;font-weight:700">
             ${r['Customer Name']}
             <span style="font-size:12px;font-weight:400;color:var(--text-muted)">(${r['Dealer Code']})</span>
-            ${pill(prio)}
-            ${callBadge}
+            ${pill(prio)} ${callBadge}
           </div>
           <div style="background:var(--red-bg);color:var(--red);padding:4px 10px;border-radius:var(--radius-sm);font-weight:800;font-family:'JetBrains Mono';font-size:16px">${fmt(r['Balance'])}</div>
         </div>
@@ -1155,42 +1391,37 @@ function _buildCallCardHTML(r) {
         ${hasRemark?`<div style="margin-top:10px;padding:10px;background:#F8FAFC;border:1px solid var(--border);border-radius:var(--radius-sm)"><div style="font-size:10px;font-weight:800;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">Last Conversation</div><div style="font-size:13px;color:var(--text-secondary)">💬 ${r['Last Remarks']}</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px">📅 ${r['Last Call Date']||'—'}</div></div>`:''}
       </div>
       <div class="call-actions" style="margin-left:16px">
-        <!-- FIX 2: Only Log Call button — 📞 Call button removed -->
         <button class="btn btn-primary btn-sm" onclick="openCallModal('${esc(r['Dealer Code'])}','${esc(r['Customer Name'])}','${esc(r['Location']||'')}','${esc(r['Invoice No.'])}',${r['Balance']})">✍️ Log Call</button>
+        <button class="btn btn-ghost btn-sm" onclick="openRemarksModal('${esc(r['Invoice No.'])}','${esc(r['Customer Name'])}','${esc(r['Dealer Code'])}',${r['Balance']||0})">📋 Remarks</button>
       </div>
     </div>`;
 }
 
 // ══════════════════════════════════════════════════════
-// IN-PLACE CARD UPDATE
+// IN-PLACE CARD UPDATE (Today's Calling)
 // ══════════════════════════════════════════════════════
 function _updateCardInPlace(invoiceNo, payload) {
     const newFupStr = _parseDateToStr(payload.followUpDate);
     const amtPaid   = parseFloat(payload.amountReceived) || 0;
     const adjPaid   = parseFloat(payload.adjustment) || 0;
-
     if (AppData.today) {
         const rec = AppData.today.find(r => r['Invoice No.'] === invoiceNo);
         if (rec) {
             rec['Balance'] = Math.max(0, (rec['Balance'] || 0) - amtPaid - adjPaid);
             if (payload.followUpDate) rec['Next Follow-up'] = payload.followUpDate;
-            rec['Last Remarks'] = payload.remarks;
-            rec['Last Call Date'] = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+            rec['Last Remarks']    = payload.remarks;
+            rec['Last Call Date']  = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
         }
     }
-
     if (!AppData.today) return;
     const { todayRecs, pendingRecs } = _categorizeTodayRecords(AppData.today);
     const sortedToday   = _sortTodayRecords(todayRecs);
     const sortedPending = _sortTodayRecords(pendingRecs);
-
-    document.getElementById('badge-today').textContent       = sortedToday.length;
-    document.getElementById('today-count-badge').textContent = sortedToday.length;
+    document.getElementById('badge-today').textContent         = sortedToday.length;
+    document.getElementById('today-count-badge').textContent   = sortedToday.length;
     document.getElementById('pending-count-badge').textContent = sortedPending.length;
-
     const currentFiltered = AppState.todayFilter === 'pending' ? sortedPending : sortedToday;
     const stillInTab = currentFiltered.some(r => r['Invoice No.'] === invoiceNo);
-
     if (stillInTab) {
         const cardEl = document.querySelector(`.call-card[data-inv="${CSS.escape(invoiceNo)}"]`);
         if (cardEl) {
@@ -1207,20 +1438,12 @@ function _updateCardInPlace(invoiceNo, payload) {
         const cardEl = document.querySelector(`.call-card[data-inv="${CSS.escape(invoiceNo)}"]`);
         if (cardEl) {
             cardEl.style.transition = 'opacity 0.3s, transform 0.3s';
-            cardEl.style.opacity = '0';
-            cardEl.style.transform = 'translateX(20px)';
-            setTimeout(() => {
-                cardEl.remove();
-                _updateChips(currentFiltered);
-            }, 320);
+            cardEl.style.opacity = '0'; cardEl.style.transform = 'translateX(20px)';
+            setTimeout(() => { cardEl.remove(); _updateChips(currentFiltered); }, 320);
         }
-        if (newFupStr === _todayStr) {
-            toast('Record aaj ke Today Calling mein move ho gaya ✅', 'info');
-        } else if (!newFupStr || newFupStr < _todayStr) {
-            toast('Record Pending mein hai — follow-up set karo', 'info');
-        }
+        if (newFupStr === _todayStr) toast('Record aaj ke Today Calling mein move ho gaya ✅', 'info');
+        else if (!newFupStr || newFupStr < _todayStr) toast('Record Pending mein hai — follow-up set karo', 'info');
     }
-
     _updateChips(currentFiltered);
 }
 
@@ -1233,48 +1456,76 @@ function _updateChips(records) {
 }
 
 // ══════════════════════════════════════════════════════
-// ACTIVE PAYMENTS
+// ACTIVE PAYMENTS — SWR
 // ══════════════════════════════════════════════════════
 async function loadActive(force) {
-    if (!force && AppData.activeAll) { applyActiveFilter(); return; }
+    if (!force && AppData.activeAll) {
+        applyActiveFilter();
+        // Background refresh silently
+        _bgRefreshActive();
+        // Also preload history index in background if not done
+        _preloadHistory();
+        return;
+    }
     document.getElementById('tbl-active').innerHTML = Array(6).fill('<tr><td colspan="15"><div class="sk sk-row"></div></td></tr>').join('');
     const res = await api('getActivePayments', { page: 1, pageSize: 500 });
     if (!res) return;
     AppData.activeAll = res.data;
     AppState.activePage = 1;
     applyActiveFilter();
+    // Preload history in background so first remarks click is instant
+    _preloadHistory();
+}
+
+async function _bgRefreshActive() {
+    _showSwrBadge('active-swr-badge');
+    const res = await api('getActivePayments', { page:1, pageSize:500 }, null, true);
+    _hideSwrBadge('active-swr-badge');
+    if (res) {
+        AppData.activeAll = res.data;
+        if (AppState.currentPage === 'active') applyActiveFilter();
+    }
+}
+
+// History preload — silently fetch & index kar lo
+// Taaki remarks modal pehli baar bhi instant ho
+let _historyPreloading = false;
+async function _preloadHistory() {
+    if (AppIndex.built || _historyPreloading) return;
+    _historyPreloading = true;
+    const res = await api('getCallingHistory', { page:1, pageSize:5000 }, null, true);
+    _historyPreloading = false;
+    if (res) {
+        AppData.history = res.data;
+        _buildHistoryIndex(res.data);
+    }
 }
 
 function filterActive(f, el) {
-    AppState.activeFilter = f;
-    AppState.activePage = 1;
+    AppState.activeFilter = f; AppState.activePage = 1;
     document.querySelectorAll('.filter-tabs .ftab').forEach(t => t.classList.remove('active'));
     if (el) el.classList.add('active');
-    if (AppData.activeAll) applyActiveFilter();
-    else loadActive(true);
+    if (AppData.activeAll) applyActiveFilter(); else loadActive(true);
 }
 
 function applyActiveFilter() {
     const f = AppState.activeFilter;
     let data = AppData.activeAll || [];
-    if (f === 'Paid')   data = data.filter(r => r.status === 'Paid');
+    if      (f === 'Paid')   data = data.filter(r => r.status === 'Paid');
     else if (f === 'Active') data = data.filter(r => r.status !== 'Paid');
-    else if (f !== 'all') data = data.filter(r => r.priority === f && r.status !== 'Paid');
-    const ps = PAGE_SIZE.active;
-    const total = data.length;
-    const pg = AppState.activePage;
-    const start = (pg - 1) * ps;
-    renderActiveRows(data.slice(start, start + ps), { page: pg, pageSize: ps, total, totalPages: Math.ceil(total / ps) }, data);
+    else if (f !== 'all')    data = data.filter(r => r.priority === f && r.status !== 'Paid');
+    const ps = PAGE_SIZE.active, total = data.length, pg = AppState.activePage;
+    const start = (pg-1)*ps;
+    renderActiveRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total, totalPages:Math.ceil(total/ps) }, data);
 }
 
 function renderActiveRows(pageData, pagination, allFiltered) {
     document.getElementById('active-count').textContent = `${pagination.total} records`;
-    const start = (pagination.page - 1) * pagination.pageSize;
+    const start = (pagination.page-1)*pagination.pageSize;
     const tbody = document.getElementById('tbl-active');
     if (!pageData.length) {
         tbody.innerHTML = `<tr><td colspan="15"><div class="empty-state"><span class="icon">✅</span><p>Koi record nahi</p></div></td></tr>`;
-        document.getElementById('active-pagination').innerHTML = '';
-        return;
+        document.getElementById('active-pagination').innerHTML = ''; return;
     }
     tbody.innerHTML = pageData.map((r, i) => {
         const paid = r.status === 'Paid';
@@ -1299,41 +1550,61 @@ function renderActiveRows(pageData, pagination, allFiltered) {
       </td>
     </tr>`;
     }).join('');
-
     renderPagination('active-pagination', pagination, pg => {
         AppState.activePage = pg;
         const f = AppState.activeFilter;
         let data = AppData.activeAll || [];
-        if (f === 'Paid') data = data.filter(r => r.status === 'Paid');
+        if      (f === 'Paid')   data = data.filter(r => r.status === 'Paid');
         else if (f === 'Active') data = data.filter(r => r.status !== 'Paid');
-        else if (f !== 'all') data = data.filter(r => r.priority === f && r.status !== 'Paid');
+        else if (f !== 'all')    data = data.filter(r => r.priority === f && r.status !== 'Paid');
         const ps = PAGE_SIZE.active, start = (pg-1)*ps;
         renderActiveRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) }, data);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top:0, behavior:'smooth' });
     });
 }
 
 // ══════════════════════════════════════════════════════
-// CALL HISTORY
+// CALL HISTORY — SWR + build index on load
 // ══════════════════════════════════════════════════════
 async function loadHistory(force) {
     if (!force && AppData.history) {
         const ps = PAGE_SIZE.history;
-        renderHistoryRows(AppData.history.slice(0, ps), { page:1, pageSize:ps, total:AppData.history.length, totalPages:Math.ceil(AppData.history.length/ps) });
+        renderHistoryRows(AppData.history.slice(0,ps), { page:1, pageSize:ps, total:AppData.history.length, totalPages:Math.ceil(AppData.history.length/ps) });
+        // Background refresh
+        _bgRefreshHistory();
         return;
     }
     document.getElementById('tbl-history').innerHTML = Array(5).fill('<tr><td colspan="10"><div class="sk sk-row"></div></td></tr>').join('');
-    const res = await api('getCallingHistory', { page: 1, pageSize: 500 });
+    const res = await api('getCallingHistory', { page:1, pageSize:500 });
     if (!res) return;
     AppData.history = res.data;
     AppState.historyPage = 1;
+    _buildHistoryIndex(res.data); // Index build karo
     const ps = PAGE_SIZE.history;
-    renderHistoryRows(res.data.slice(0, ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+    renderHistoryRows(res.data.slice(0,ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+}
+
+async function _bgRefreshHistory() {
+    _showSwrBadge('history-swr-badge');
+    const res = await api('getCallingHistory', { page:1, pageSize:500 }, null, true);
+    _hideSwrBadge('history-swr-badge');
+    if (res) {
+        AppData.history = res.data;
+        _buildHistoryIndex(res.data);
+        if (AppState.currentPage === 'history') {
+            const ps = PAGE_SIZE.history, pg = AppState.historyPage;
+            const start = (pg-1)*ps;
+            renderHistoryRows(res.data.slice(start, start+ps), { page:pg, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+        }
+    }
 }
 
 function renderHistoryRows(records, pagination) {
     const tbody = document.getElementById('tbl-history');
-    if (!records.length) { tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><span class="icon">📋</span><p>Koi record nahi</p></div></td></tr>`; document.getElementById('history-pagination').innerHTML = ''; return; }
+    if (!records.length) {
+        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><span class="icon">📋</span><p>Koi record nahi</p></div></td></tr>`;
+        document.getElementById('history-pagination').innerHTML = ''; return;
+    }
     const start = (pagination.page-1)*pagination.pageSize;
     tbody.innerHTML = records.map((r,i) => `
     <tr>
@@ -1348,37 +1619,52 @@ function renderHistoryRows(records, pagination) {
       <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${r['Adjustment Amount']>0?fmt(r['Adjustment Amount']):'—'}</td>
       <td style="font-size:12px">${r['Adjustment Remarks']||'—'}</td>
     </tr>`).join('');
-
     renderPagination('history-pagination', pagination, pg => {
         AppState.historyPage = pg;
-        const data = AppData.history || [];
-        const ps = PAGE_SIZE.history, start = (pg-1)*ps;
-        renderHistoryRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const data = AppData.history || [], ps = PAGE_SIZE.history, start = (pg-1)*ps;
+        renderHistoryRows(data.slice(start,start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) });
+        window.scrollTo({ top:0, behavior:'smooth' });
     });
 }
 
 // ══════════════════════════════════════════════════════
-// ARCHIVES
+// ARCHIVES — SWR
 // ══════════════════════════════════════════════════════
 async function loadArchived(force) {
     if (!force && AppData.archived) {
         const ps = PAGE_SIZE.archived;
-        renderArchivedRows(AppData.archived.slice(0, ps), { page:1, pageSize:ps, total:AppData.archived.length, totalPages:Math.ceil(AppData.archived.length/ps) });
+        renderArchivedRows(AppData.archived.slice(0,ps), { page:1, pageSize:ps, total:AppData.archived.length, totalPages:Math.ceil(AppData.archived.length/ps) });
+        // Background refresh
+        _bgRefreshArchived();
         return;
     }
     document.getElementById('tbl-archived').innerHTML = Array(5).fill('<tr><td colspan="9"><div class="sk sk-row"></div></td></tr>').join('');
-    const res = await api('getArchivedData', { page: 1, pageSize: 500 });
+    const res = await api('getArchivedData', { page:1, pageSize:500 });
     if (!res) return;
     AppData.archived = res.data;
     document.getElementById('archive-count').textContent = `${res.pagination.total} historical records`;
     const ps = PAGE_SIZE.archived;
-    renderArchivedRows(res.data.slice(0, ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+    renderArchivedRows(res.data.slice(0,ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+}
+
+async function _bgRefreshArchived() {
+    _showSwrBadge('archived-swr-badge');
+    const res = await api('getArchivedData', { page:1, pageSize:500 }, null, true);
+    _hideSwrBadge('archived-swr-badge');
+    if (res && AppState.currentPage === 'archived') {
+        AppData.archived = res.data;
+        document.getElementById('archive-count').textContent = `${res.pagination.total} historical records`;
+        const ps = PAGE_SIZE.archived;
+        renderArchivedRows(res.data.slice(0,ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
+    }
 }
 
 function renderArchivedRows(data, pagination) {
     const tbody = document.getElementById('tbl-archived');
-    if (!data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><span class="icon">📁</span><p>Koi record nahi</p></div></td></tr>`; document.getElementById('archived-pagination').innerHTML = ''; return; }
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><span class="icon">📁</span><p>Koi record nahi</p></div></td></tr>`;
+        document.getElementById('archived-pagination').innerHTML = ''; return;
+    }
     const start = (pagination.page-1)*pagination.pageSize;
     tbody.innerHTML = data.map((r,i) => `
     <tr>
@@ -1392,12 +1678,10 @@ function renderArchivedRows(data, pagination) {
       <td>${pill(r.priority)}</td>
       <td style="font-size:11.5px;color:var(--text-muted)">${fmtDate(r['Archived Date'])}</td>
     </tr>`).join('');
-
     renderPagination('archived-pagination', pagination, pg => {
-        const data = AppData.archived || [];
-        const ps = PAGE_SIZE.archived, start = (pg-1)*ps;
-        renderArchivedRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const data = AppData.archived||[], ps=PAGE_SIZE.archived, start=(pg-1)*ps;
+        renderArchivedRows(data.slice(start,start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) });
+        window.scrollTo({ top:0, behavior:'smooth' });
     });
 }
 
@@ -1408,36 +1692,30 @@ function renderPagination(containerId, pg, onPageClick) {
     const el = document.getElementById(containerId);
     if (!el) return;
     if (pg.totalPages <= 1) { el.innerHTML = ''; return; }
-
     const { page, totalPages, total, pageSize } = pg;
-    const from = (page-1)*pageSize + 1;
-    const to = Math.min(page*pageSize, total);
-
+    const from = (page-1)*pageSize+1, to = Math.min(page*pageSize, total);
     el.innerHTML = `
         <span class="pg-info">${from}–${to} of ${total}</span>
         <button class="pg-btn" id="pg-prev-${containerId}" ${page<=1?'disabled':''}>&lsaquo; Prev</button>
         <span id="pg-nums-${containerId}"></span>
-        <button class="pg-btn" id="pg-next-${containerId}" ${page>=totalPages?'disabled':''}>Next &rsaquo;</button>
-    `;
-
-    const numsEl = document.getElementById('pg-nums-' + containerId);
+        <button class="pg-btn" id="pg-next-${containerId}" ${page>=totalPages?'disabled':''}>Next &rsaquo;</button>`;
+    const numsEl = document.getElementById('pg-nums-'+containerId);
     const range = [];
-    for (let p = Math.max(1, page-2); p <= Math.min(totalPages, page+2); p++) range.push(p);
+    for (let p = Math.max(1,page-2); p <= Math.min(totalPages,page+2); p++) range.push(p);
     let numsHTML = '';
-    if (range[0] > 1) numsHTML += `<button class="pg-btn" data-p="1">1</button>${range[0]>2?'<span style="padding:0 4px;color:var(--text-muted)">…</span>':''}`;
-    range.forEach(p => { numsHTML += `<button class="pg-btn ${p===page?'active':''}" data-p="${p}">${p}</button>`; });
-    if (range[range.length-1] < totalPages) numsHTML += `${range[range.length-1]<totalPages-1?'<span style="padding:0 4px;color:var(--text-muted)">…</span>':''}<button class="pg-btn" data-p="${totalPages}">${totalPages}</button>`;
+    if (range[0]>1) numsHTML+=`<button class="pg-btn" data-p="1">1</button>${range[0]>2?'<span style="padding:0 4px;color:var(--text-muted)">…</span>':''}`;
+    range.forEach(p => { numsHTML+=`<button class="pg-btn ${p===page?'active':''}" data-p="${p}">${p}</button>`; });
+    if (range[range.length-1]<totalPages) numsHTML+=`${range[range.length-1]<totalPages-1?'<span style="padding:0 4px;color:var(--text-muted)">…</span>':''}<button class="pg-btn" data-p="${totalPages}">${totalPages}</button>`;
     numsEl.innerHTML = numsHTML;
-
-    document.getElementById('pg-prev-' + containerId).addEventListener('click', () => onPageClick(page-1));
-    document.getElementById('pg-next-' + containerId).addEventListener('click', () => onPageClick(page+1));
+    document.getElementById('pg-prev-'+containerId).addEventListener('click', () => onPageClick(page-1));
+    document.getElementById('pg-next-'+containerId).addEventListener('click', () => onPageClick(page+1));
     numsEl.querySelectorAll('.pg-btn[data-p]').forEach(btn => {
         btn.addEventListener('click', () => onPageClick(parseInt(btn.dataset.p)));
     });
 }
 
 // ══════════════════════════════════════════════════════
-// ANALYSIS
+// ANALYSIS — SWR
 // ══════════════════════════════════════════════════════
 let analysisView = 'user';
 
@@ -1450,15 +1728,37 @@ function setAnalysisView(view, el) {
 }
 
 async function loadAnalysis(force) {
-    if (!force && AppData.analysis && AppData.history) { renderCurrentAnalysis(AppData.analysis, AppData.history); return; }
-    document.getElementById('analysis-content').innerHTML = `<div class="empty-state"><span class="icon">⏳</span><p>Analyzing data...</p></div>`;
+    const hasCache = AppData.analysis && AppData.history;
+    if (!force && hasCache) {
+        renderCurrentAnalysis(AppData.analysis, AppData.history);
+        // Background refresh
+        _bgRefreshAnalysis();
+        return;
+    }
+    if (!hasCache) {
+        document.getElementById('analysis-content').innerHTML = `<div class="empty-state"><span class="icon">⏳</span><p>Analyzing data...</p></div>`;
+    }
     const [resA, resH] = await Promise.all([
         api('getAnalysisData', null, null, true),
-        AppData.history ? Promise.resolve({ success: true, data: AppData.history }) : api('getCallingHistory', { page:1, pageSize:5000 }, null, true)
+        AppData.history
+            ? Promise.resolve({ success:true, data:AppData.history })
+            : api('getCallingHistory', { page:1, pageSize:5000 }, null, true)
     ]);
     if (resA) AppData.analysis = resA.data;
-    if (resH) AppData.history = resH.data;
+    if (resH) { AppData.history = resH.data; _buildHistoryIndex(resH.data); }
     if (AppData.analysis) renderCurrentAnalysis(AppData.analysis, AppData.history || []);
+}
+
+async function _bgRefreshAnalysis() {
+    const [resA, resH] = await Promise.all([
+        api('getAnalysisData', null, null, true),
+        api('getCallingHistory', { page:1, pageSize:5000 }, null, true)
+    ]);
+    if (resA) AppData.analysis = resA.data;
+    if (resH) { AppData.history = resH.data; _buildHistoryIndex(resH.data); }
+    if (AppData.analysis && AppState.currentPage === 'analysis') {
+        renderCurrentAnalysis(AppData.analysis, AppData.history || []);
+    }
 }
 
 function renderCurrentAnalysis(data, history) {
@@ -1471,24 +1771,16 @@ function renderUserAnalysis(data, history) {
     for (const h of history) {
         if (!h['Timestamp']) continue;
         let dateStr;
-        try {
-            const parts = String(h['Timestamp']).split(' ');
-            dateStr = _parseDateToStr(parts[0]);
-            if (!dateStr) dateStr = parts[0];
-        } catch { continue; }
+        try { const parts = String(h['Timestamp']).split(' '); dateStr = _parseDateToStr(parts[0]); if (!dateStr) dateStr = parts[0]; }
+        catch { continue; }
         if (!dayMap[dateStr]) dayMap[dateStr] = { calls: [] };
-        dayMap[dateStr].calls.push({
-            inv: h['Invoice No.'] || '', amt: parseFloat(h['Amount Received']) || 0,
-            cust: h['Customer Name'] || '', remarks: h['Remarks'] || ''
-        });
+        dayMap[dateStr].calls.push({ inv:h['Invoice No.']||'', amt:parseFloat(h['Amount Received'])||0, cust:h['Customer Name']||'', remarks:h['Remarks']||'' });
     }
-
-    const dates = Object.keys(dayMap).sort((a,b) => b.localeCompare(a));
-    const todayTotalCount = AppData.today ? AppData.today.length : 0;
-    const totalCalls = history.length;
-    const totalCollection = history.reduce((s, h) => s + (parseFloat(h['Amount Received'])||0), 0);
-    const daysWithCalls = dates.length;
-
+    const dates            = Object.keys(dayMap).sort((a,b) => b.localeCompare(a));
+    const todayTotalCount  = AppData.today ? AppData.today.length : 0;
+    const totalCalls       = history.length;
+    const totalCollection  = history.reduce((s,h) => s+(parseFloat(h['Amount Received'])||0), 0);
+    const daysWithCalls    = dates.length;
     document.getElementById('analysis-content').innerHTML = `
     <div class="analysis-grid">
       <div class="stat-card"><span class="stat-label">Total Calls Logged</span><div class="stat-value">${totalCalls}</div><div class="stat-footer">All time</div></div>
@@ -1506,13 +1798,13 @@ function renderUserAnalysis(data, history) {
       </div>
       <div style="padding:6px 20px 16px">
         ${!dates.length ? '<div class="empty-state"><span class="icon">📋</span><p>Koi call history nahi</p></div>' :
-          dates.slice(0, 30).map(dateStr => {
+          dates.slice(0,30).map(dateStr => {
             const day = dayMap[dateStr];
-            const callsDone = day.calls.length;
-            const isToday = dateStr === _todayStr;
+            const callsDone  = day.calls.length;
+            const isToday    = dateStr === _todayStr;
             const totalForDay = isToday ? Math.max(todayTotalCount, callsDone) : callsDone;
-            const donePct = totalForDay > 0 ? (callsDone/totalForDay*100) : 0;
-            const leftPct = isToday ? (100 - donePct) : 0;
+            const donePct    = totalForDay > 0 ? (callsDone/totalForDay*100) : 0;
+            const leftPct    = isToday ? (100-donePct) : 0;
             const dayCollection = day.calls.reduce((s,c)=>s+c.amt,0);
             return `<div class="day-bar-row">
               <span class="day-lbl">${fmtDate(dateStr)}</span>
@@ -1523,8 +1815,7 @@ function renderUserAnalysis(data, history) {
               <span class="day-nums">${callsDone}${isToday?'/'+totalForDay:''} calls</span>
               <span class="day-amt">${dayCollection>0?fmt(dayCollection):'—'}</span>
             </div>`;
-          }).join('')
-        }
+          }).join('')}
       </div>
     </div>
     <div class="analysis-table-card" style="margin-top:16px">
@@ -1532,7 +1823,7 @@ function renderUserAnalysis(data, history) {
       <div class="tbl-wrap"><table>
         <thead><tr><th>#</th><th>Date</th><th>Invoice</th><th>Customer</th><th>Amount Recd.</th><th>Remarks</th></tr></thead>
         <tbody>
-        ${history.slice(0, 50).map((h, i) => `<tr>
+        ${history.slice(0,50).map((h,i) => `<tr>
           <td style="color:var(--text-muted)">${i+1}</td>
           <td style="font-size:11.5px">${h['Timestamp']||'—'}</td>
           <td><span class="mono">${h['Invoice No.']||'—'}</span></td>
@@ -1547,14 +1838,18 @@ function renderUserAnalysis(data, history) {
 
 function renderDealerAnalysis(data, history) {
     const stats = data.stats || {};
+    // Use AppIndex if available, otherwise build on the fly
     const dealerHistoryMap = {};
-    for (const h of history) {
-        const code = (h['Dealer Code'] || '').trim();
-        if (!code) continue;
-        if (!dealerHistoryMap[code]) dealerHistoryMap[code] = [];
-        dealerHistoryMap[code].push(h);
+    if (AppIndex.built) {
+        AppIndex.dealerHistory.forEach((records, code) => { dealerHistoryMap[code] = records; });
+    } else {
+        for (const h of history) {
+            const code = (h['Dealer Code']||'').trim();
+            if (!code) continue;
+            if (!dealerHistoryMap[code]) dealerHistoryMap[code] = [];
+            dealerHistoryMap[code].push(h);
+        }
     }
-
     document.getElementById('analysis-content').innerHTML = `
     <div class="analysis-grid">
       <div class="stat-card"><span class="stat-label">Total Dealers</span><div class="stat-value">${stats.total||0}</div><div class="stat-footer">${stats.active||0} Active</div></div>
@@ -1570,8 +1865,8 @@ function renderDealerAnalysis(data, history) {
       <div class="tbl-wrap"><table>
         <thead><tr><th>#</th><th>Dealer Code</th><th>Customer Name</th><th>Outstanding</th><th>Calls Logged</th><th>Priority</th><th>Status</th></tr></thead>
         <tbody>
-        ${data.list.map((d, i) => {
-            const callCount = (dealerHistoryMap[d.code] || []).length;
+        ${data.list.map((d,i) => {
+            const callCount = (dealerHistoryMap[d.code]||[]).length;
             return `<tr style="cursor:pointer" onclick="openDealerModal('${esc(d.code)}','${esc(d.name)}')">
               <td style="color:var(--text-muted)">${i+1}</td>
               <td><span class="mono">${d.code}</span></td>
@@ -1585,38 +1880,36 @@ function renderDealerAnalysis(data, history) {
         </tbody>
       </table></div>
     </div>`;
-
     window._dealerHistoryMap = dealerHistoryMap;
     window._dealerList = data.list;
 }
 
 function openDealerModal(code, name) {
-    const histList   = (window._dealerHistoryMap || {})[code] || [];
-    const dealerInfo = (window._dealerList || []).find(d => d.code === code) || {};
-
+    // Fast path: use index
+    const histList   = AppIndex.built
+        ? (AppIndex.dealerHistory.get(code) || [])
+        : ((window._dealerHistoryMap||{})[code] || []);
+    const dealerInfo = (window._dealerList||[]).find(d => d.code === code) || {};
     document.getElementById('dealer-modal-name').textContent = name + ' (' + code + ')';
-    document.getElementById('dealer-modal-meta').textContent = (dealerInfo.location || '') + (dealerInfo.invoices ? ' · ' + dealerInfo.invoices + ' invoices' : '');
-
+    document.getElementById('dealer-modal-meta').textContent = (dealerInfo.location||'') + (dealerInfo.invoices?' · '+dealerInfo.invoices+' invoices':'');
     const totalCalls    = histList.length;
     const totalReceived = histList.reduce((s,h)=>s+(parseFloat(h['Amount Received'])||0),0);
     const totalAdj      = histList.reduce((s,h)=>s+(parseFloat(h['Adjustment Amount'])||0),0);
-
     document.getElementById('dealer-modal-stats').innerHTML = [
         ['📞 Calls Logged', totalCalls, 'var(--blue)'],
         ['💰 Total Received', fmt(totalReceived), 'var(--green)'],
         ['📋 Adjustments', fmt(totalAdj), 'var(--orange)'],
         ['💳 Outstanding', fmt(dealerInfo.totalOutstanding||0), 'var(--red)'],
-    ].map(([lbl, val, color]) => `
+    ].map(([lbl,val,color]) => `
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;flex:1;min-width:120px">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${lbl}</div>
             <div style="font-size:16px;font-weight:800;color:${color};font-family:'JetBrains Mono'">${val}</div>
         </div>`).join('');
-
     document.getElementById('dealer-modal-timeline').innerHTML = !histList.length
         ? '<div class="empty-state"><span class="icon">📋</span><p>Koi call history nahi</p></div>'
         : histList.map(h => {
-            const amt = parseFloat(h['Amount Received']) || 0;
-            const adj = parseFloat(h['Adjustment Amount']) || 0;
+            const amt = parseFloat(h['Amount Received'])||0;
+            const adj = parseFloat(h['Adjustment Amount'])||0;
             return `<div class="timeline-item">
                 <div class="timeline-dot ${amt>0?'paid':''}"></div>
                 <div class="timeline-meta">
@@ -1627,14 +1920,13 @@ function openDealerModal(code, name) {
                     </div>
                     <div style="font-size:12px;color:var(--text-muted);margin-top:3px">
                         Invoice: <strong>${h['Invoice No.']||'—'}</strong>
-                        ${h['Follow Up Date']?` · Follow-up: ${fmtDate(h['Follow Up Date'])}` :''}
+                        ${h['Follow Up Date']?` · Follow-up: ${fmtDate(h['Follow Up Date'])}`:''}
                     </div>
                     ${h['Remarks']?`<div style="font-size:13px;color:var(--text-secondary);margin-top:6px;padding:7px 10px;background:var(--bg);border-radius:var(--radius-sm)">💬 ${h['Remarks']}</div>`:''}
                     ${h['Adjustment Remarks']?`<div style="font-size:11.5px;color:var(--orange);margin-top:4px">ADJ Reason: ${h['Adjustment Remarks']}</div>`:''}
                 </div>
             </div>`;
         }).join('');
-
     openModal('modal-dealer');
 }
 
@@ -1643,48 +1935,50 @@ function openDealerModal(code, name) {
 // ══════════════════════════════════════════════════════
 async function submitAddInvoice() {
     const p = {
-        salesPerson: v('f-sp'), dispatchDate: v('f-dd'), dealerCode: v('f-dc'),
-        customerName: v('f-cn'), location: v('f-loc'), dealerType: v('f-dt'),
-        orderNo: v('f-ord'), dealerPhNo: v('f-ph'), invoiceNo: v('f-inv'),
-        invoiceAmount: v('f-amt'), creditDays: v('f-crd'),
+        salesPerson:   v('f-sp'), dispatchDate: v('f-dd'), dealerCode: v('f-dc'),
+        customerName:  v('f-cn'), location:     v('f-loc'), dealerType: v('f-dt'),
+        orderNo:       v('f-ord'), dealerPhNo:  v('f-ph'), invoiceNo:  v('f-inv'),
+        invoiceAmount: v('f-amt'), creditDays:  v('f-crd'),
     };
-    if (!p.salesPerson || !p.customerName || !p.invoiceNo || !p.invoiceAmount) {
+    if (!p.salesPerson||!p.customerName||!p.invoiceNo||!p.invoiceAmount) {
         toast('Sab required (*) fields bharo', 'error'); return;
     }
     loader('Invoice add ho raha hai...');
     const res = await api('addInvoice', p);
     hideLoader();
     if (!res) return;
-    AppData.dashboard = null; AppData.today = null; AppData.active = null; AppData.activeAll = null;
+    AppData.dashboard = null; AppData.today = null; AppData.activeAll = null;
     toast(res.message, 'success');
     closeModal('modal-add');
     if (AppState.currentPage === 'dashboard') loadDashboard(true);
-    if (AppState.currentPage === 'active') loadActive(true);
+    if (AppState.currentPage === 'active')    loadActive(true);
 }
 
-// FIX 3: Follow-up date always resets to today's date every time modal opens
 function openCallModal(dc, name, loc, inv, bal) {
     document.getElementById('c-name').textContent = name;
-    document.getElementById('c-inv').textContent = inv;
-    document.getElementById('c-loc').textContent = loc;
-    document.getElementById('c-bal').textContent = fmt(bal);
-    document.getElementById('c-dc').value = dc;
-    document.getElementById('c-amt').value = '';
-    document.getElementById('c-rmk').value = '';
-    document.getElementById('c-adj').value = '';
-    document.getElementById('c-adjr').value = '';
-    // FIX 3: Always set follow-up date to today — never carry over previous value
-    document.getElementById('c-fup').value = _todayStr;
-    // Reset submit button state
+    document.getElementById('c-inv').textContent  = inv;
+    document.getElementById('c-loc').textContent  = loc;
+    document.getElementById('c-bal').textContent  = fmt(bal);
+    document.getElementById('c-dc').value         = dc;
+    document.getElementById('c-amt').value        = '';
+    document.getElementById('c-rmk').value        = '';
+    document.getElementById('c-adj').value        = '';
+    document.getElementById('c-adjr').value       = '';
+    document.getElementById('c-fup').value        = _todayStr;
     const btn = document.getElementById('btn-save-call');
-    btn.disabled = false;
-    btn.innerHTML = 'Save Call Log';
+    btn.disabled = false; btn.innerHTML = 'Save Call Log';
     const m = document.getElementById('modal-call');
-    m.dataset.inv = inv; m.dataset.name = name; m.dataset.loc = loc; m.dataset.bal = bal || 0;
+    m.dataset.inv = inv; m.dataset.name = name; m.dataset.loc = loc; m.dataset.bal = bal||0;
     openModal('modal-call');
 }
 
-// FIX 5: Modal closes INSTANTLY on click, API runs in background
+// ══════════════════════════════════════════════════════
+// SUBMIT LOG CALL
+// Modal instantly close hota hai.
+// History cache NULL nahi hoti — new entry locally
+// append hoti hai + index update hota hai.
+// Remarks modal ab call ke baad bhi fast rahega.
+// ══════════════════════════════════════════════════════
 async function submitLogCall() {
     const m = document.getElementById('modal-call');
     const invoiceNo = m.dataset.inv;
@@ -1698,61 +1992,85 @@ async function submitLogCall() {
         remarks:           v('c-rmk'),
         adjustment:        v('c-adj') || 0,
         adjustmentRemarks: v('c-adjr'),
+        loggedBy:          _currentUser ? _currentUser.email : 'unknown',
     };
     const bal = parseFloat(m.dataset.bal) || 0;
     const amt = parseFloat(p.amountReceived) || 0;
     const adj = parseFloat(p.adjustment) || 0;
 
-    // Validate BEFORE closing modal (so user can correct errors)
-    if (amt + adj > bal) {
-        toast(`Total (₹${amt+adj}) balance (₹${bal}) se zyada nahi ho sakta`, 'error');
-        return;
+    if (amt+adj > bal) {
+        toast(`Total (₹${amt+adj}) balance (₹${bal}) se zyada nahi ho sakta`, 'error'); return;
     }
     if (!p.remarks) {
-        toast('Customer remarks daalo', 'error');
-        return;
+        toast('Customer remarks daalo', 'error'); return;
     }
 
-    // FIX 5: Close modal INSTANTLY — no waiting for API
+    // Modal instantly close
     closeModal('modal-call');
 
-    // Increment session call count immediately (optimistic)
-    AppState.sessionCallCounts[invoiceNo] = (AppState.sessionCallCounts[invoiceNo] || 0) + 1;
+    AppState.sessionCallCounts[invoiceNo] = (AppState.sessionCallCounts[invoiceNo]||0) + 1;
 
-    // Optimistic local update
-    AppData.dashboard = null;
-    AppData.activeAll = null;
-    AppData.history   = null;
-    AppData.analysis  = null;
-
-    // Update UI immediately (in-place, no scroll jump)
-    if (AppState.currentPage === 'today' && AppData.today) {
-        _updateCardInPlace(invoiceNo, p);
-    } else if (AppState.currentPage === 'active') {
-        if (AppData.activeAll) {
-            const rec = AppData.activeAll.find(r => r['Invoice No.'] === invoiceNo);
-            if (rec) {
-                rec['Balance'] = Math.max(0, (rec['Balance']||0) - amt - adj);
-                if (rec['Balance'] <= 0) rec.status = 'Paid';
-            }
-            applyActiveFilter();
+    // ── Local cache update (optimistic) ──────────────────
+    // 1. Active payments balance update
+    if (AppData.activeAll) {
+        const rec = AppData.activeAll.find(r => r['Invoice No.'] === invoiceNo);
+        if (rec) {
+            rec['Balance'] = Math.max(0, (rec['Balance']||0) - amt - adj);
+            if (rec['Balance'] <= 0) rec.status = 'Paid';
         }
+        if (AppState.currentPage === 'active') applyActiveFilter();
     }
 
-    // Show immediate feedback toast
+    // 2. Today's calling in-place update
+    if (AppState.currentPage === 'today' && AppData.today) {
+        _updateCardInPlace(invoiceNo, p);
+    }
+
+    // 3. History cache — append locally (no re-fetch needed)
+    //    Yeh ensure karta hai ki remarks modal call ke baad bhi fast ho
+    const newEntry = {
+        'Timestamp':          new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+        'Dealer Code':        p.dealerCode,
+        'Customer Name':      p.customerName,
+        'Invoice No.':        invoiceNo,
+        'Amount Received':    amt,
+        'Follow Up Date':     p.followUpDate,
+        'Scheduled Follow-up': p.followUpDate,
+        'Remarks':            p.remarks,
+        'Adjustment Amount':  adj,
+        'Adjustment Remarks': p.adjustmentRemarks,
+    };
+    if (AppData.history) {
+        AppData.history.unshift(newEntry);
+    }
+    // Index mein add karo
+    _indexNewCallEntry(newEntry);
+
+    // Dashboard invalidate (numbers change honge)
+    AppData.dashboard = null;
+
     toast('📤 Saving call log...', 'info');
 
-    // API call runs in background — silent (no progress bar blocking UI)
+    // Background API call
     const res = await api('logCall', p, undefined, true);
 
     if (res) {
         toast('✅ Call logged successfully!', 'success');
-        // Refresh dashboard silently in background
         if (AppState.currentPage === 'dashboard') loadDashboard(true);
-        else if (AppState.currentPage === 'history') loadHistory(true);
+        else if (AppState.currentPage === 'history') {
+            // Re-render with updated local data
+            const ps = PAGE_SIZE.history;
+            if (AppData.history) renderHistoryRows(AppData.history.slice(0,ps), { page:1, pageSize:ps, total:AppData.history.length, totalPages:Math.ceil(AppData.history.length/ps) });
+        }
     } else {
-        // If API failed, revert optimistic session count
-        AppState.sessionCallCounts[invoiceNo] = Math.max(0, (AppState.sessionCallCounts[invoiceNo] || 1) - 1);
+        // Rollback optimistic updates
+        AppState.sessionCallCounts[invoiceNo] = Math.max(0, (AppState.sessionCallCounts[invoiceNo]||1)-1);
+        if (AppData.history) { AppData.history.shift(); }
+        // Remove from index
+        if (AppIndex.invoiceHistory) {
+            const arr = AppIndex.invoiceHistory.get(invoiceNo);
+            if (arr && arr.length) arr.shift();
+        }
         toast('⚠️ Save failed — please try again', 'error');
     }
 }
@@ -1763,32 +2081,29 @@ async function submitLogCall() {
 async function globalSearch(val) {
     clearTimeout(AppState.searchTimer);
     const q = val.trim().toLowerCase();
-
-    if (AppState.currentPage === 'active' && AppData.activeAll) {
-        const filtered = q ? AppData.activeAll.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'], r['Dealer Ph. No.'])) : AppData.activeAll;
+    if (AppState.currentPage==='active' && AppData.activeAll) {
+        const filtered = q ? AppData.activeAll.filter(r => matchQ(q,r['Customer Name'],r['Invoice No.'],r['Dealer Code'],r['Dealer Ph. No.'])) : AppData.activeAll;
         const ps = PAGE_SIZE.active;
-        renderActiveRows(filtered.slice(0, ps), { page:1, pageSize:ps, total:filtered.length, totalPages:Math.ceil(filtered.length/ps) }, filtered);
+        renderActiveRows(filtered.slice(0,ps), { page:1,pageSize:ps,total:filtered.length,totalPages:Math.ceil(filtered.length/ps) }, filtered);
         return;
     }
-    if (AppState.currentPage === 'today' && AppData.today) {
-        const filteredData = q ? AppData.today.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'], r['Dealer Ph. No.'])) : AppData.today;
-        renderToday(filteredData);
-        return;
+    if (AppState.currentPage==='today' && AppData.today) {
+        const filteredData = q ? AppData.today.filter(r => matchQ(q,r['Customer Name'],r['Invoice No.'],r['Dealer Code'],r['Dealer Ph. No.'])) : AppData.today;
+        renderToday(filteredData); return;
     }
-    if (AppState.currentPage === 'history' && AppData.history) {
-        const filtered = q ? AppData.history.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'], r['Remarks'])) : AppData.history;
+    if (AppState.currentPage==='history' && AppData.history) {
+        const filtered = q ? AppData.history.filter(r => matchQ(q,r['Customer Name'],r['Invoice No.'],r['Dealer Code'],r['Remarks'])) : AppData.history;
         const ps = PAGE_SIZE.history;
-        renderHistoryRows(filtered.slice(0, ps), { page:1, pageSize:ps, total:filtered.length, totalPages:Math.ceil(filtered.length/ps) });
+        renderHistoryRows(filtered.slice(0,ps), { page:1,pageSize:ps,total:filtered.length,totalPages:Math.ceil(filtered.length/ps) });
         return;
     }
-    if (AppState.currentPage === 'archived' && AppData.archived) {
-        const filtered = q ? AppData.archived.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'])) : AppData.archived;
+    if (AppState.currentPage==='archived' && AppData.archived) {
+        const filtered = q ? AppData.archived.filter(r => matchQ(q,r['Customer Name'],r['Invoice No.'],r['Dealer Code'])) : AppData.archived;
         const ps = PAGE_SIZE.archived;
-        renderArchivedRows(filtered.slice(0, ps), { page:1, pageSize:ps, total:filtered.length, totalPages:Math.ceil(filtered.length/ps) });
+        renderArchivedRows(filtered.slice(0,ps), { page:1,pageSize:ps,total:filtered.length,totalPages:Math.ceil(filtered.length/ps) });
         return;
     }
-
-    if (q.length < 2) { if (AppState.currentPage === 'search') nav('dashboard'); return; }
+    if (q.length<2) { if (AppState.currentPage==='search') nav('dashboard'); return; }
     AppState.searchTimer = setTimeout(async () => {
         nav('search');
         document.getElementById('tbl-search').innerHTML = Array(5).fill('<tr><td colspan="9"><div class="sk sk-row"></div></td></tr>').join('');
@@ -1796,7 +2111,7 @@ async function globalSearch(val) {
         if (!res) return;
         document.getElementById('search-count').textContent = `${res.data.length} results`;
         const tbody = document.getElementById('tbl-search');
-        if (!res.data.length) { tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><span class="icon">🔍</span><p>Koi record nahi mila</p></div></td></tr>`; return; }
+        if (!res.data.length) { tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><span class="icon">🔍</span><p>Koi record nahi mila</p></div></td></tr>`; return; }
         tbody.innerHTML = res.data.map(r => `
         <tr>
           <td><div class="td-primary">${r['Customer Name']}</div><div style="font-size:11px;color:var(--text-muted)">${r['Dealer Code']}</div></td>
@@ -1825,12 +2140,12 @@ async function runArchiveNow() {
 
 function downloadActiveExcel() {
     const allData = AppData.activeAll;
-    if (!allData || !allData.length) { toast('Pehle Active Payments page kholo', 'error'); return; }
+    if (!allData||!allData.length) { toast('Pehle Active Payments page kholo', 'error'); return; }
     let filtered = allData;
     const f = AppState.activeFilter;
-    if (f === 'Paid') filtered = allData.filter(r => r.status === 'Paid');
-    else if (f === 'Active') filtered = allData.filter(r => r.status !== 'Paid');
-    else if (f !== 'all') filtered = allData.filter(r => r.priority === f && r.status !== 'Paid');
+    if      (f==='Paid')   filtered=allData.filter(r=>r.status==='Paid');
+    else if (f==='Active') filtered=allData.filter(r=>r.status!=='Paid');
+    else if (f!=='all')    filtered=allData.filter(r=>r.priority===f&&r.status!=='Paid');
     if (!filtered.length) { toast('Koi record nahi', 'info'); return; }
     const headers = ['Customer Name','Dealer Code','Phone No.','Invoice No.','Sales Person','Invoice Amount','Balance','Dispatch Date','Due Date','Due Days','Priority','Status'];
     const csvRows = [headers.join(',')];
@@ -1845,7 +2160,7 @@ function downloadActiveExcel() {
         `"${fmtDate(r['Payment Due Date'])}"`,
         r.dueDays||0, `"${r.priority||''}"`, r.status||'Active'
     ].join(',')));
-    const blob = new Blob(["\ufeff" + csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(["\ufeff"+csvRows.join('\r\n')], { type:'text/csv;charset=utf-8;' });
     const a = Object.assign(document.createElement('a'), {
         href: URL.createObjectURL(blob),
         download: `Active_Payments_${new Date().toISOString().slice(0,10)}.csv`
@@ -1856,53 +2171,76 @@ function downloadActiveExcel() {
 }
 
 // ══════════════════════════════════════════════════════
-// INVOICE REMARKS MODAL
+// INVOICE REMARKS MODAL — FAST (Index-based)
+//
+// Priority order:
+//   1. AppIndex.invoiceHistory (Map) — O(1), instant ✅
+//   2. AppData.history (Array) — O(n) scan, then build index
+//   3. Network fetch — only if no cache at all
 // ══════════════════════════════════════════════════════
 async function openRemarksModal(invoiceNo, customerName, dealerCode, balance) {
     document.getElementById('remarks-modal-name').textContent = customerName + ' (' + dealerCode + ')';
     document.getElementById('remarks-modal-meta').textContent = 'Invoice: ' + invoiceNo + '  ·  Balance: ' + fmt(balance);
-    document.getElementById('remarks-modal-timeline').innerHTML = '<div class="empty-state"><span class="icon">⏳</span><p>Loading history...</p></div>';
-    document.getElementById('remarks-modal-stats').innerHTML = '';
     openModal('modal-remarks');
 
-    let histData = AppData.history;
-    if (!histData) {
-        const res = await api('getCallingHistory', { page: 1, pageSize: 5000 }, null, true);
-        if (res) { AppData.history = res.data; histData = res.data; }
-    }
-
-    if (!histData) {
-        document.getElementById('remarks-modal-timeline').innerHTML = '<div class="empty-state"><span class="icon">❌</span><p>History load nahi ho saki</p></div>';
+    // Fast path 1: Index available → instant render
+    if (AppIndex.built && AppIndex.invoiceHistory) {
+        const records = AppIndex.invoiceHistory.get(invoiceNo) || [];
+        _renderRemarksModalContent(records, balance);
         return;
     }
 
-    const records = histData.filter(h => h['Invoice No.'] === invoiceNo);
+    // Fast path 2: History array available → filter + build index for next time
+    if (AppData.history) {
+        const records = AppData.history.filter(h => h['Invoice No.'] === invoiceNo);
+        _buildHistoryIndex(AppData.history); // Build index so next time is O(1)
+        _renderRemarksModalContent(records, balance);
+        return;
+    }
 
+    // Slow path: No cache — show loader, fetch once
+    document.getElementById('remarks-modal-timeline').innerHTML = `
+        <div class="empty-state">
+            <div class="spinner" style="width:24px;height:24px;border-width:2px"></div>
+            <p style="margin-top:8px">Loading history...</p>
+        </div>`;
+    document.getElementById('remarks-modal-stats').innerHTML = '';
+
+    const res = await api('getCallingHistory', { page:1, pageSize:5000 }, null, true);
+    if (res) {
+        AppData.history = res.data;
+        _buildHistoryIndex(res.data);
+        const records = AppIndex.invoiceHistory.get(invoiceNo) || [];
+        _renderRemarksModalContent(records, balance);
+    } else {
+        document.getElementById('remarks-modal-timeline').innerHTML =
+            '<div class="empty-state"><span class="icon">❌</span><p>History load nahi ho saki</p></div>';
+    }
+}
+
+function _renderRemarksModalContent(records, balance) {
     const totalCalls    = records.length;
-    const totalReceived = records.reduce((s,h) => s + (parseFloat(h['Amount Received'])||0), 0);
-    const totalAdj      = records.reduce((s,h) => s + (parseFloat(h['Adjustment Amount'])||0), 0);
-
+    const totalReceived = records.reduce((s,h)=>s+(parseFloat(h['Amount Received'])||0),0);
+    const totalAdj      = records.reduce((s,h)=>s+(parseFloat(h['Adjustment Amount'])||0),0);
     document.getElementById('remarks-modal-stats').innerHTML = [
-        ['📞 Total Calls', totalCalls, 'var(--blue)'],
-        ['💰 Total Received', fmt(totalReceived), 'var(--green)'],
-        ['📋 Adjustments', fmt(totalAdj), 'var(--orange)'],
-        ['💳 Current Balance', fmt(balance), 'var(--red)'],
-    ].map(([lbl, val, color]) => `
+        ['📞 Total Calls',    totalCalls,          'var(--blue)'],
+        ['💰 Total Received', fmt(totalReceived),   'var(--green)'],
+        ['📋 Adjustments',    fmt(totalAdj),        'var(--orange)'],
+        ['💳 Current Balance',fmt(balance),         'var(--red)'],
+    ].map(([lbl,val,color]) => `
         <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;flex:1;min-width:110px">
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">${lbl}</div>
             <div style="font-size:16px;font-weight:800;color:${color};font-family:'JetBrains Mono'">${val}</div>
         </div>`).join('');
-
     const timeline = document.getElementById('remarks-modal-timeline');
     if (!records.length) {
         timeline.innerHTML = '<div class="empty-state"><span class="icon">📋</span><p>Is invoice par koi call log nahi hai abhi tak</p></div>';
         return;
     }
-
     timeline.innerHTML = records.map(h => {
-        const amt = parseFloat(h['Amount Received']) || 0;
-        const adj = parseFloat(h['Adjustment Amount']) || 0;
-        const dotColor = amt > 0 ? 'var(--green)' : 'var(--blue)';
+        const amt = parseFloat(h['Amount Received'])||0;
+        const adj = parseFloat(h['Adjustment Amount'])||0;
+        const dotColor = amt>0 ? 'var(--green)' : 'var(--blue)';
         return `<div class="timeline-item">
             <div class="timeline-dot" style="background:${dotColor}"></div>
             <div class="timeline-meta" style="width:100%">
@@ -1928,28 +2266,28 @@ async function openRemarksModal(invoiceNo, customerName, dealerCode, balance) {
 // HELPERS
 // ══════════════════════════════════════════════════════
 function matchQ(q, ...fields) { return fields.some(f => f && String(f).toLowerCase().includes(q)); }
-function openModal(id) { document.getElementById(id).classList.add('open'); }
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.addEventListener('click', e => { if (e.target.classList.contains('modal-bg')) closeModal(e.target.id); });
-function loader(msg) { document.getElementById('loader-msg').textContent = msg || 'Loading...'; document.getElementById('loader').classList.add('show'); }
+function loader(msg) { document.getElementById('loader-msg').textContent=msg||'Loading...'; document.getElementById('loader').classList.add('show'); }
 function hideLoader() { document.getElementById('loader').classList.remove('show'); }
 
 function toast(msg, type) {
-    type = type || 'info';
+    type = type||'info';
     const icons = { success:'✅', error:'❌', info:'ℹ️' };
     const el = document.createElement('div');
     el.className = `toast ${type}`;
     el.innerHTML = `<span class="toast-icon">${icons[type]}</span><span>${msg}</span>`;
     document.getElementById('toasts').appendChild(el);
-    setTimeout(() => { el.style.transition = 'opacity 0.3s'; el.style.opacity = '0'; }, 3500);
+    setTimeout(() => { el.style.transition='opacity 0.3s'; el.style.opacity='0'; }, 3500);
     setTimeout(() => el.remove(), 3800);
 }
 
 function fmt(n) {
-    const val = parseFloat(n) || 0;
-    if (val >= 1e7) return '₹' + (val/1e7).toFixed(2) + ' Cr';
-    if (val >= 1e5) return '₹' + (val/1e5).toFixed(2) + ' L';
-    return '₹' + val.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+    const val = parseFloat(n)||0;
+    if (val>=1e7) return '₹'+(val/1e7).toFixed(2)+' Cr';
+    if (val>=1e5) return '₹'+(val/1e5).toFixed(2)+' L';
+    return '₹'+val.toLocaleString('en-IN', { maximumFractionDigits:0 });
 }
 
 function fmtDate(val) {
@@ -1958,22 +2296,22 @@ function fmtDate(val) {
         const s = String(val).trim();
         const m = s.match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);
         if (m) {
-            const months = { jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11 };
-            const mo = months[m[2].toLowerCase()];
-            if (mo !== undefined) return new Date(parseInt(m[3]), mo, parseInt(m[1])).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+            const months={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+            const mo=months[m[2].toLowerCase()];
+            if (mo!==undefined) return new Date(parseInt(m[3]),mo,parseInt(m[1])).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
         }
-        return new Date(s).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+        return new Date(s).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
     } catch { return val; }
 }
 
 function pill(priority) {
-    priority = priority || 'Normal';
-    const map = { Critical:'critical', High:'high', Medium:'medium', Normal:'normal', Reminder:'reminder' };
+    priority = priority||'Normal';
+    const map={Critical:'critical',High:'high',Medium:'medium',Normal:'normal',Reminder:'reminder'};
     return `<span class="badge badge-${map[priority]||'normal'}">${priority}</span>`;
 }
 
 function esc(s) { return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
-function v(id) { return (document.getElementById(id)||{}).value || ''; }
+function v(id)  { return (document.getElementById(id)||{}).value||''; }
 </script>
 </body>
 </html>

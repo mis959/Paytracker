@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
         <style>
         /* ══════════════════════════════════════════════
-           PREMIUM SLATE-INK DESIGN SYSTEM v12.2
+           PREMIUM SLATE-INK DESIGN SYSTEM v13.1
            Palette: Deep Ink sidebar · Cool Slate canvas
            Accents: Indigo primary · Jewel-tone semantics
            ══════════════════════════════════════════════ */
@@ -289,7 +289,6 @@
         .progress-bar-wrap.show { opacity: 1; }
         .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--blue), #8BA4FF); transition: width .4s cubic-bezier(.4,0,.2,1); }
 
-        /* SWR refresh pulse — subtle border glow when background update is running */
         @keyframes swrPulse { 0%,100%{opacity:1} 50%{opacity:.5} }
         .swr-refreshing { animation: swrPulse 1.2s ease infinite; }
 
@@ -506,7 +505,7 @@
             </button>
         </div>
     </div>
-    <div class="login-footer-txt">PayTrack v12.2 &nbsp;·&nbsp; © 2026 Tarun Paint Co.</div>
+    <div class="login-footer-txt">PayTrack v13.1 &nbsp;·&nbsp; © 2026 Tarun Paint Co.</div>
 </div>
 
 <div class="progress-bar-wrap" id="progress-bar"><div class="progress-bar-fill" id="progress-fill"></div></div>
@@ -542,7 +541,7 @@
         <button class="nav-btn" onclick="hardRefresh()"><span class="nav-icon">🔄</span> Force Refresh</button>
     </nav>
     <div class="sidebar-footer">
-        <span class="sidebar-footer-txt">PayTrack v12.2 &nbsp;·&nbsp; © 2026</span>
+        <span class="sidebar-footer-txt">PayTrack v13.1 &nbsp;·&nbsp; © 2026</span>
      </div>
 </aside>
 
@@ -847,16 +846,13 @@
 
 <script>
 // ══════════════════════════════════════════════════════
-// PAYTRACK v12.2 — SWR + Fast Remarks Index
-// Changes from v12.1:
-//   • Stale-While-Revalidate (SWR) on all pages
-//     → Cache dikhao INSTANTLY, background mein refresh
-//   • AppIndex (Map-based) — O(1) invoice/dealer history lookup
-//     → Remarks modal ab instant open hoga
-//   • _preloadHistory() — Active page load ke saath silently
-//     history preload hoti hai so first remarks click is also fast
-//   • submitLogCall — history cache ko preserve & update karta hai
-//     instead of nulling it (no re-fetch needed)
+// PAYTRACK v13.1 — Duplicate Invoice No. Fix
+// Changes from v12.2:
+//   • _buildHistoryIndex: composite key "dc||inv" instead of "inv"
+//     → same invoice no. wale alag dealers ka history mix nahi hoga
+//   • _indexNewCallEntry: same composite key
+//   • openRemarksModal: composite key se lookup + dealerCode filter
+//     → Remarks modal ab exact invoice+dealer ka history dikhayega
 // ══════════════════════════════════════════════════════
 
 let WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw4WKLk2pyHLEqLIwM8qmg5E-ZXFYWvx94Br7SVWt7YDjWPhYs7Ij9n4anMLMsoxGI3/exec';
@@ -954,11 +950,13 @@ const AppData = {
 
 // ══════════════════════════════════════════════════════
 // APP INDEX — O(1) HISTORY LOOKUP
-// Invoice ya dealer ke liye full history scan karne ki
-// zaroorat nahi — Map se seedha milega
+// v13.1 FIX: invoiceHistory key = "DealerCode||InvoiceNo"
+// Pehle sirf InvoiceNo key tha → same invoice no. wale alag
+// dealers ka history mix ho jaata tha.
+// Ab composite key se exact match hota hai.
 // ══════════════════════════════════════════════════════
 const AppIndex = {
-    invoiceHistory: null,  // Map<invoiceNo, records[]>
+    invoiceHistory: null,  // Map<"DealerCode||InvoiceNo", records[]>
     dealerHistory:  null,  // Map<dealerCode, records[]>
     built: false,
 };
@@ -967,12 +965,16 @@ function _buildHistoryIndex(records) {
     AppIndex.invoiceHistory = new Map();
     AppIndex.dealerHistory  = new Map();
     for (const h of records) {
-        const inv = (h['Invoice No.'] || '').trim();
-        const dc  = (h['Dealer Code']  || '').trim();
-        if (inv) {
-            if (!AppIndex.invoiceHistory.has(inv)) AppIndex.invoiceHistory.set(inv, []);
-            AppIndex.invoiceHistory.get(inv).push(h);
+        const inv     = (h['Invoice No.'] || '').trim();
+        const dc      = (h['Dealer Code']  || '').trim();
+        const compKey = dc + '||' + inv;  // ← v13.1: composite key
+
+        // Invoice history: dono zaroori hain unique match ke liye
+        if (inv && dc) {
+            if (!AppIndex.invoiceHistory.has(compKey)) AppIndex.invoiceHistory.set(compKey, []);
+            AppIndex.invoiceHistory.get(compKey).push(h);
         }
+        // Dealer history: keyed by dealerCode only (saare invoices ek saath)
         if (dc) {
             if (!AppIndex.dealerHistory.has(dc)) AppIndex.dealerHistory.set(dc, []);
             AppIndex.dealerHistory.get(dc).push(h);
@@ -984,11 +986,13 @@ function _buildHistoryIndex(records) {
 // New call entry ko index mein add karo (full re-fetch ki zaroorat nahi)
 function _indexNewCallEntry(entry) {
     if (!AppIndex.built) return;
-    const inv = (entry['Invoice No.'] || '').trim();
-    const dc  = (entry['Dealer Code']  || '').trim();
-    if (inv) {
-        if (!AppIndex.invoiceHistory.has(inv)) AppIndex.invoiceHistory.set(inv, []);
-        AppIndex.invoiceHistory.get(inv).unshift(entry); // Latest first
+    const inv     = (entry['Invoice No.'] || '').trim();
+    const dc      = (entry['Dealer Code']  || '').trim();
+    const compKey = dc + '||' + inv;  // ← v13.1: composite key
+
+    if (inv && dc) {
+        if (!AppIndex.invoiceHistory.has(compKey)) AppIndex.invoiceHistory.set(compKey, []);
+        AppIndex.invoiceHistory.get(compKey).unshift(entry); // Latest first
     }
     if (dc) {
         if (!AppIndex.dealerHistory.has(dc)) AppIndex.dealerHistory.set(dc, []);
@@ -1132,8 +1136,6 @@ async function api(action, payload, query, silent) {
 
 // ══════════════════════════════════════════════════════
 // SWR BADGE HELPERS
-// Card header mein "↻ Refreshing" badge dikhao jab
-// background refresh chal raha ho
 // ══════════════════════════════════════════════════════
 function _showSwrBadge(id) {
     const el = document.getElementById(id);
@@ -1191,7 +1193,6 @@ async function hardRefresh() {
 async function loadDashboard(force) {
     if (!force && AppData.dashboard) {
         renderDashboard(AppData.dashboard, true);
-        // Background refresh (silent, no progress bar)
         _bgRefreshDashboard();
         return;
     }
@@ -1199,7 +1200,6 @@ async function loadDashboard(force) {
     if (!res) return;
     AppData.dashboard = res.data;
     renderDashboard(res.data, res.fromCache);
-    // Preload today's calling silently
     if (!AppData.today) {
         api('getTodayCalling', null, null, true).then(r => { if (r) AppData.today = r.data; });
     }
@@ -1318,7 +1318,6 @@ function setTodayFilter(f, el) {
 async function loadToday(force) {
     if (!force && AppData.today) {
         renderToday(AppData.today);
-        // Background refresh
         api('getTodayCalling', null, null, true).then(r => {
             if (r) { AppData.today = r.data; if (AppState.currentPage === 'today') renderToday(r.data); }
         });
@@ -1461,9 +1460,7 @@ function _updateChips(records) {
 async function loadActive(force) {
     if (!force && AppData.activeAll) {
         applyActiveFilter();
-        // Background refresh silently
         _bgRefreshActive();
-        // Also preload history index in background if not done
         _preloadHistory();
         return;
     }
@@ -1473,7 +1470,6 @@ async function loadActive(force) {
     AppData.activeAll = res.data;
     AppState.activePage = 1;
     applyActiveFilter();
-    // Preload history in background so first remarks click is instant
     _preloadHistory();
 }
 
@@ -1487,8 +1483,6 @@ async function _bgRefreshActive() {
     }
 }
 
-// History preload — silently fetch & index kar lo
-// Taaki remarks modal pehli baar bhi instant ho
 let _historyPreloading = false;
 async function _preloadHistory() {
     if (AppIndex.built || _historyPreloading) return;
@@ -1558,7 +1552,7 @@ function renderActiveRows(pageData, pagination, allFiltered) {
         else if (f === 'Active') data = data.filter(r => r.status !== 'Paid');
         else if (f !== 'all')    data = data.filter(r => r.priority === f && r.status !== 'Paid');
         const ps = PAGE_SIZE.active, start = (pg-1)*ps;
-        renderActiveRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) }, data);
+        renderActiveRows(data.slice(start,start+ps), { page:pg, pageSize:ps, total:data.length, totalPages:Math.ceil(data.length/ps) }, data);
         window.scrollTo({ top:0, behavior:'smooth' });
     });
 }
@@ -1570,7 +1564,6 @@ async function loadHistory(force) {
     if (!force && AppData.history) {
         const ps = PAGE_SIZE.history;
         renderHistoryRows(AppData.history.slice(0,ps), { page:1, pageSize:ps, total:AppData.history.length, totalPages:Math.ceil(AppData.history.length/ps) });
-        // Background refresh
         _bgRefreshHistory();
         return;
     }
@@ -1579,7 +1572,7 @@ async function loadHistory(force) {
     if (!res) return;
     AppData.history = res.data;
     AppState.historyPage = 1;
-    _buildHistoryIndex(res.data); // Index build karo
+    _buildHistoryIndex(res.data);
     const ps = PAGE_SIZE.history;
     renderHistoryRows(res.data.slice(0,ps), { page:1, pageSize:ps, total:res.data.length, totalPages:Math.ceil(res.data.length/ps) });
 }
@@ -1634,7 +1627,6 @@ async function loadArchived(force) {
     if (!force && AppData.archived) {
         const ps = PAGE_SIZE.archived;
         renderArchivedRows(AppData.archived.slice(0,ps), { page:1, pageSize:ps, total:AppData.archived.length, totalPages:Math.ceil(AppData.archived.length/ps) });
-        // Background refresh
         _bgRefreshArchived();
         return;
     }
@@ -1731,7 +1723,6 @@ async function loadAnalysis(force) {
     const hasCache = AppData.analysis && AppData.history;
     if (!force && hasCache) {
         renderCurrentAnalysis(AppData.analysis, AppData.history);
-        // Background refresh
         _bgRefreshAnalysis();
         return;
     }
@@ -1838,7 +1829,6 @@ function renderUserAnalysis(data, history) {
 
 function renderDealerAnalysis(data, history) {
     const stats = data.stats || {};
-    // Use AppIndex if available, otherwise build on the fly
     const dealerHistoryMap = {};
     if (AppIndex.built) {
         AppIndex.dealerHistory.forEach((records, code) => { dealerHistoryMap[code] = records; });
@@ -1885,7 +1875,6 @@ function renderDealerAnalysis(data, history) {
 }
 
 function openDealerModal(code, name) {
-    // Fast path: use index
     const histList   = AppIndex.built
         ? (AppIndex.dealerHistory.get(code) || [])
         : ((window._dealerHistoryMap||{})[code] || []);
@@ -1972,13 +1961,6 @@ function openCallModal(dc, name, loc, inv, bal) {
     openModal('modal-call');
 }
 
-// ══════════════════════════════════════════════════════
-// SUBMIT LOG CALL
-// Modal instantly close hota hai.
-// History cache NULL nahi hoti — new entry locally
-// append hoti hai + index update hota hai.
-// Remarks modal ab call ke baad bhi fast rahega.
-// ══════════════════════════════════════════════════════
 async function submitLogCall() {
     const m = document.getElementById('modal-call');
     const invoiceNo = m.dataset.inv;
@@ -2005,15 +1987,11 @@ async function submitLogCall() {
         toast('Customer remarks daalo', 'error'); return;
     }
 
-    // Modal instantly close
     closeModal('modal-call');
-
     AppState.sessionCallCounts[invoiceNo] = (AppState.sessionCallCounts[invoiceNo]||0) + 1;
 
-    // ── Local cache update (optimistic) ──────────────────
-    // 1. Active payments balance update
     if (AppData.activeAll) {
-        const rec = AppData.activeAll.find(r => r['Invoice No.'] === invoiceNo);
+        const rec = AppData.activeAll.find(r => r['Invoice No.'] === invoiceNo && r['Dealer Code'] === p.dealerCode);
         if (rec) {
             rec['Balance'] = Math.max(0, (rec['Balance']||0) - amt - adj);
             if (rec['Balance'] <= 0) rec.status = 'Paid';
@@ -2021,13 +1999,10 @@ async function submitLogCall() {
         if (AppState.currentPage === 'active') applyActiveFilter();
     }
 
-    // 2. Today's calling in-place update
     if (AppState.currentPage === 'today' && AppData.today) {
         _updateCardInPlace(invoiceNo, p);
     }
 
-    // 3. History cache — append locally (no re-fetch needed)
-    //    Yeh ensure karta hai ki remarks modal call ke baad bhi fast ho
     const newEntry = {
         'Timestamp':          new Date().toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}),
         'Dealer Code':        p.dealerCode,
@@ -2043,32 +2018,27 @@ async function submitLogCall() {
     if (AppData.history) {
         AppData.history.unshift(newEntry);
     }
-    // Index mein add karo
     _indexNewCallEntry(newEntry);
 
-    // Dashboard invalidate (numbers change honge)
     AppData.dashboard = null;
 
     toast('📤 Saving call log...', 'info');
 
-    // Background API call
     const res = await api('logCall', p, undefined, true);
 
     if (res) {
         toast('✅ Call logged successfully!', 'success');
         if (AppState.currentPage === 'dashboard') loadDashboard(true);
         else if (AppState.currentPage === 'history') {
-            // Re-render with updated local data
             const ps = PAGE_SIZE.history;
             if (AppData.history) renderHistoryRows(AppData.history.slice(0,ps), { page:1, pageSize:ps, total:AppData.history.length, totalPages:Math.ceil(AppData.history.length/ps) });
         }
     } else {
-        // Rollback optimistic updates
         AppState.sessionCallCounts[invoiceNo] = Math.max(0, (AppState.sessionCallCounts[invoiceNo]||1)-1);
         if (AppData.history) { AppData.history.shift(); }
-        // Remove from index
         if (AppIndex.invoiceHistory) {
-            const arr = AppIndex.invoiceHistory.get(invoiceNo);
+            const compKey = p.dealerCode + '||' + invoiceNo;
+            const arr = AppIndex.invoiceHistory.get(compKey);
             if (arr && arr.length) arr.shift();
         }
         toast('⚠️ Save failed — please try again', 'error');
@@ -2172,10 +2142,13 @@ function downloadActiveExcel() {
 
 // ══════════════════════════════════════════════════════
 // INVOICE REMARKS MODAL — FAST (Index-based)
+// v13.1 FIX: Composite key "DealerCode||InvoiceNo" use karo
+//   taaki same invoice no. wale alag dealers ka history mix
+//   na ho jaye.
 //
 // Priority order:
-//   1. AppIndex.invoiceHistory (Map) — O(1), instant ✅
-//   2. AppData.history (Array) — O(n) scan, then build index
+//   1. AppIndex.invoiceHistory (Map, compKey) — O(1), instant ✅
+//   2. AppData.history (Array) — filter by BOTH inv+dc, build index
 //   3. Network fetch — only if no cache at all
 // ══════════════════════════════════════════════════════
 async function openRemarksModal(invoiceNo, customerName, dealerCode, balance) {
@@ -2183,17 +2156,20 @@ async function openRemarksModal(invoiceNo, customerName, dealerCode, balance) {
     document.getElementById('remarks-modal-meta').textContent = 'Invoice: ' + invoiceNo + '  ·  Balance: ' + fmt(balance);
     openModal('modal-remarks');
 
-    // Fast path 1: Index available → instant render
+    // Fast path 1: Index available → instant render (composite key)
     if (AppIndex.built && AppIndex.invoiceHistory) {
-        const records = AppIndex.invoiceHistory.get(invoiceNo) || [];
+        const compKey = dealerCode + '||' + invoiceNo;  // ← v13.1
+        const records = AppIndex.invoiceHistory.get(compKey) || [];
         _renderRemarksModalContent(records, balance);
         return;
     }
 
-    // Fast path 2: History array available → filter + build index for next time
+    // Fast path 2: History array available → filter by BOTH fields (v13.1 fix)
     if (AppData.history) {
-        const records = AppData.history.filter(h => h['Invoice No.'] === invoiceNo);
-        _buildHistoryIndex(AppData.history); // Build index so next time is O(1)
+        const records = AppData.history.filter(h =>
+            h['Invoice No.'] === invoiceNo && h['Dealer Code'] === dealerCode  // ← v13.1
+        );
+        _buildHistoryIndex(AppData.history);
         _renderRemarksModalContent(records, balance);
         return;
     }
@@ -2210,7 +2186,8 @@ async function openRemarksModal(invoiceNo, customerName, dealerCode, balance) {
     if (res) {
         AppData.history = res.data;
         _buildHistoryIndex(res.data);
-        const records = AppIndex.invoiceHistory.get(invoiceNo) || [];
+        const compKey = dealerCode + '||' + invoiceNo;  // ← v13.1
+        const records = AppIndex.invoiceHistory.get(compKey) || [];
         _renderRemarksModalContent(records, balance);
     } else {
         document.getElementById('remarks-modal-timeline').innerHTML =

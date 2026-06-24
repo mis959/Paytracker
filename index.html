@@ -855,7 +855,8 @@
 //     → Remarks modal ab exact invoice+dealer ka history dikhayega
 // ══════════════════════════════════════════════════════
 
-let WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw4WKLk2pyHLEqLIwM8qmg5E-ZXFYWvx94Br7SVWt7YDjWPhYs7Ij9n4anMLMsoxGI3/exec';
+let WEBAPP_URL = localStorage.getItem('paytrack_webapp_url') 
+    || 'https://script.google.com/macros/s/AKfycbw4WKLk2pyHLEqLIwM8qmg5E-ZXFYWvx94Br7SVWt7YDjWPhYs7Ij9n4anMLMsoxGI3/exec';
 
 // ══════════════════════════════════════════════════════
 // SESSION MANAGEMENT

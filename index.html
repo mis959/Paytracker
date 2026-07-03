@@ -475,7 +475,22 @@
                 <button class="ftab" onclick="filterActive('Normal',this)">🟢 Normal</button>
                 <button class="ftab" onclick="filterActive('Reminder',this)">🔵 Reminder</button>
                 <button class="ftab" onclick="filterActive('Paid',this)">✅ Paid</button>
-                <button class="btn btn-sm btn-ghost" onclick="downloadActiveExcel()" style="margin-left:auto;color:var(--green);border-color:var(--green-bg)">📥 Download</button>
+
+                <select id="sp-filter" onchange="applySalesPersonFilter(this.value)"
+                    style="margin-left:auto;padding:6px 12px;border-radius:20px;font-size:12.5px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:inherit;">
+                    <option value="">👤 All Sales Persons</option>
+                </select>
+
+                <select id="sort-select" onchange="applySortFilter(this.value)"
+                    style="padding:6px 12px;border-radius:20px;font-size:12.5px;font-weight:600;border:1.5px solid var(--border);background:var(--white);color:var(--text-secondary);cursor:pointer;font-family:inherit;">
+                    <option value="">↕️ Default Sort</option>
+                    <option value="dealer-asc">Dealer A → Z</option>
+                    <option value="dealer-desc">Dealer Z → A</option>
+                    <option value="balance-asc">Balance: Low → High</option>
+                    <option value="balance-desc">Balance: High → Low</option>
+                </select>
+
+                <button class="btn btn-sm btn-ghost" onclick="downloadActiveExcel()" style="color:var(--green);border-color:var(--green-bg)">📥 Download</button>
             </div>
             <div class="card">
                 <div class="card-head">
@@ -644,17 +659,11 @@
 
 <script>
 // ══════════════════════════════════════════════════════
-// PAYTRACK v14
-// Changes from v13.1:
-//   • Analysis tab removed → Collection tab added
-//     (date-wise payment-only history, no adjustments)
-//   • Adjustment Remarks: "Other" option added
-//   • Active Payment filter persistence fix:
-//     AppState.activeSearchQuery tracks the search bar
-//     value; applyActiveFilter() re-applies it so filter
-//     tabs + search both survive after logging a call
-//   • Aging Analysis Google Sheet: updateAgingAnalysis
-//     GAS function writes daily snapshot with highlights
+// PAYTRACK v15
+// Changes from v14:
+//   • Active Payments: Sales Person filter dropdown
+//   • Active Payments: Sort by Dealer (A-Z/Z-A) & Balance (asc/desc)
+//   • Download now respects current filter+sort (via _getFilteredActiveData)
 // ══════════════════════════════════════════════════════
 
 let WEBAPP_URL = localStorage.getItem('paytrack_webapp_url')
@@ -775,6 +784,9 @@ const AppState = {
     todayFilter: 'today', searchTimer: null,
     sessionCallCounts: {}, lastCallMap: {},
     activeSearchQuery: '',  // v14: filter persistence fix
+    activeSalesPersonFilter: '',  // v15: sales person filter
+    activeSortField: null,        // v15: 'dealer' | 'balance'
+    activeSortDir: null,          // v15: 'asc' | 'desc'
 };
 
 const PAGE_SIZE = { active: 100, history: 50, archived: 100 };
@@ -918,6 +930,7 @@ async function hardRefresh() {
     AppIndex.invoiceHistory = null; AppIndex.dealerHistory = null; AppIndex.built = false;
     AppState.sessionCallCounts = {}; AppState.lastCallMap = {};
     AppState.activeSearchQuery = '';
+    AppState.activeSalesPersonFilter = ''; AppState.activeSortField = null; AppState.activeSortDir = null;
     await api('clearCache', null, null, true);
     toast('Cache cleared! Refreshing...', 'info');
     nav(AppState.currentPage, true);
@@ -1186,9 +1199,11 @@ function _updateChips(records) {
 // ══════════════════════════════════════════════════════
 // ACTIVE PAYMENTS — SWR
 // v14 FIX: activeSearchQuery — filter persistence
+// v15: Sales Person filter + Dealer/Balance sort
 // ══════════════════════════════════════════════════════
 async function loadActive(force) {
     if (!force && AppData.activeAll) {
+        _populateSalesPersonFilter();
         applyActiveFilter();
         _bgRefreshActive();
         _preloadHistory();
@@ -1199,6 +1214,7 @@ async function loadActive(force) {
     if (!res) return;
     AppData.activeAll = res.data;
     AppState.activePage = 1;
+    _populateSalesPersonFilter();
     applyActiveFilter();
     _preloadHistory();
 }
@@ -1207,7 +1223,10 @@ async function _bgRefreshActive() {
     _showSwrBadge('active-swr-badge');
     const res = await api('getActivePayments', { page:1, pageSize:500 }, null, true);
     _hideSwrBadge('active-swr-badge');
-    if (res) { AppData.activeAll = res.data; if (AppState.currentPage === 'active') applyActiveFilter(); }
+    if (res) {
+        AppData.activeAll = res.data;
+        if (AppState.currentPage === 'active') { _populateSalesPersonFilter(); applyActiveFilter(); }
+    }
 }
 
 let _historyPreloading = false;
@@ -1226,13 +1245,70 @@ function filterActive(f, el) {
     if (AppData.activeAll) applyActiveFilter(); else loadActive(true);
 }
 
-// v14 FIX: activeSearchQuery bhi apply karo filter ke baad
-function applyActiveFilter() {
+// v15: Sales Person filter
+function applySalesPersonFilter(val) {
+    AppState.activeSalesPersonFilter = val;
+    AppState.activePage = 1;
+    applyActiveFilter();
+}
+
+// v15: Dealer A-Z/Z-A & Balance asc/desc sort
+function applySortFilter(val) {
+    if (!val) {
+        AppState.activeSortField = null;
+        AppState.activeSortDir = null;
+    } else {
+        const [field, dir] = val.split('-');
+        AppState.activeSortField = field;
+        AppState.activeSortDir = dir;
+    }
+    AppState.activePage = 1;
+    applyActiveFilter();
+}
+
+function _populateSalesPersonFilter() {
+    const sel = document.getElementById('sp-filter');
+    if (!sel || !AppData.activeAll) return;
+    const names = [...new Set(AppData.activeAll.map(r => r['Sales Person']).filter(Boolean))]
+        .sort((a,b) => a.localeCompare(b, 'en', {sensitivity:'base'}));
+    const current = AppState.activeSalesPersonFilter;
+    sel.innerHTML = '<option value="">👤 All Sales Persons</option>' +
+        names.map(n => `<option value="${esc(n)}" ${n===current?'selected':''}>${n}</option>`).join('');
+}
+
+function _applyActiveSort(data) {
+    const field = AppState.activeSortField, dir = AppState.activeSortDir;
+    if (!field) return data;
+    const sorted = data.slice();
+    sorted.sort((a, b) => {
+        if (field === 'dealer') {
+            const va = String(a['Customer Name']||'').toLowerCase();
+            const vb = String(b['Customer Name']||'').toLowerCase();
+            const cmp = va.localeCompare(vb, 'en', { sensitivity:'base' });
+            return dir === 'asc' ? cmp : -cmp;
+        }
+        if (field === 'balance') {
+            const va = parseFloat(a['Balance']) || 0;
+            const vb = parseFloat(b['Balance']) || 0;
+            return dir === 'asc' ? va - vb : vb - va;
+        }
+        return 0;
+    });
+    return sorted;
+}
+
+// v15: Central filtered+sorted data — used by both table render AND download,
+// so jo bhi filter/sort screen par lagा hai wahi download hoga
+function _getFilteredActiveData() {
     const f = AppState.activeFilter;
     let data = AppData.activeAll || [];
     if      (f === 'Paid')   data = data.filter(r => r.status === 'Paid');
     else if (f === 'Active') data = data.filter(r => r.status !== 'Paid');
     else if (f !== 'all')    data = data.filter(r => r.priority === f && r.status !== 'Paid');
+
+    if (AppState.activeSalesPersonFilter) {
+        data = data.filter(r => (r['Sales Person']||'') === AppState.activeSalesPersonFilter);
+    }
 
     // Apply search query on top of filter (v14 persistence fix)
     const q = AppState.activeSearchQuery.trim().toLowerCase();
@@ -1240,6 +1316,11 @@ function applyActiveFilter() {
         data = data.filter(r => matchQ(q, r['Customer Name'], r['Invoice No.'], r['Dealer Code'], r['Dealer Ph. No.']));
     }
 
+    return _applyActiveSort(data);
+}
+
+function applyActiveFilter() {
+    const data = _getFilteredActiveData();
     const ps = PAGE_SIZE.active, total = data.length, pg = AppState.activePage;
     const start = (pg-1)*ps;
     renderActiveRows(data.slice(start, start+ps), { page:pg, pageSize:ps, total, totalPages:Math.ceil(total/ps) }, data);
@@ -1742,17 +1823,8 @@ async function runArchiveNow() {
 }
 
 function downloadActiveExcel() {
-    const allData = AppData.activeAll;
-    if (!allData||!allData.length) { toast('Pehle Active Payments page kholo', 'error'); return; }
-    let filtered = allData;
-    const f = AppState.activeFilter;
-    if      (f==='Paid')   filtered=allData.filter(r=>r.status==='Paid');
-    else if (f==='Active') filtered=allData.filter(r=>r.status!=='Paid');
-    else if (f!=='all')    filtered=allData.filter(r=>r.priority===f&&r.status!=='Paid');
-    if (AppState.activeSearchQuery) {
-        const q = AppState.activeSearchQuery;
-        filtered = filtered.filter(r => matchQ(q,r['Customer Name'],r['Invoice No.'],r['Dealer Code'],r['Dealer Ph. No.']));
-    }
+    if (!AppData.activeAll || !AppData.activeAll.length) { toast('Pehle Active Payments page kholo', 'error'); return; }
+    const filtered = _getFilteredActiveData();  // v15: same filter+sort jo screen par hai
     if (!filtered.length) { toast('Koi record nahi', 'info'); return; }
     const headers = ['Customer Name','Dealer Code','Phone No.','Invoice No.','Sales Person','Invoice Amount','Balance','Dispatch Date','Due Date','Due Days','Priority','Status'];
     const csvRows = [headers.join(',')];
